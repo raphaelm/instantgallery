@@ -1,6 +1,9 @@
+@import url(http://fonts.googleapis.com/css?family=Ubuntu);
 body {
 	background: black;
 	text-align: center;
+	font-family: 'Ubuntu', sans-serif;
+	font-size: 13px;
 }
 img#main {
 	max-height: 90%;
@@ -23,5 +26,8 @@ a img {
 }
 a {
 	color: white;
-	font-family: sans-serif;
+}
+.exif {
+	color: #555;
+	font-size: 11px;
 }
