@@ -1,0 +1,13 @@
+@import url(http://fonts.googleapis.com/css?family=Ubuntu);
+body {
+	background: black;
+}
+a img {
+	border: none;
+}
+h1 {
+	color: white;
+	font-family: 'Ubuntu', sans-serif;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}

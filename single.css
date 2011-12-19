@@ -1,0 +1,27 @@
+body {
+	background: black;
+	text-align: center;
+}
+img#main {
+	max-height: 90%;
+	margin: auto;
+}
+#prev {
+	position: fixed;
+	top: 50%;
+	margin-top: -50px;
+	left: 10px;
+}
+#next {
+	position: fixed;
+	top: 50%;
+	margin-top: -50px;
+	right: 10px;
+}
+a img {
+	border: none;
+}
+a {
+	color: white;
+	font-family: sans-serif;
+}
