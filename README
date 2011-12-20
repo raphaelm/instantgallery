@@ -22,7 +22,19 @@ the project on github (<https://github.com/raphaelm/instantgallery>).
 
 Please report bugs to <raphael@geeksfactory.de>
 
-========================================================================
+=======================================================================================
+Requirements:
+	* Python 2.7
+		http://python.org/
+		Debian/Ubuntu: python2.7
+	* Python Imaging Library (PIL)
+		http://www.pythonware.com/products/pil/
+		Debian/Ubuntu: python-imaging
+	* ImageMagick's convert
+		http://imagemagick.org/
+		Debian/Ubuntu: imagemagick
+
+=======================================================================================
 
 usage: instantgallery.py [-h] [--title TITLE] [--language LNG] [--no-exif]
                          [--no-rotate] [--sort] [-y] [-s]
