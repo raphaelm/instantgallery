@@ -1,0 +1,53 @@
+instantgallery.py takes a directory full of photos and turns it into a photo
+gallery made for the web. Just execute the file with the options you want
+to specify and you're done. To publish the gallery, just upload the OUTPUT
+directory to any webserver. It's plain HTML, so it works on every server.
+
+You can modify the appearance of the gallery by changing the two CSS files
+in the root directory.
+
+instantgallery.py can handle and display EXIF information and is able to try
+rotating portrait format photos automatically (by using their EXIF rotate
+information combined with their aspect ratio).
+
+By default the photos are ordered by their file names alphabetically but you
+can specify a flag to have them sorted chronologically: instantgallery.py then
+tries to read there EXIF "OriginalDate" field first and uses Unix' mtime() if
+it failes.
+
+instantgallery.py is able to generate galleries in other languages than
+English, currently only German is supportet. If you add another language
+I would be glad to get an email (<raphael@geeksfactory.de>) or just fork
+the project on github (<https://github.com/raphaelm/instantgallery>).
+
+Please report bugs to <raphael@geeksfactory.de>
+
+========================================================================
+
+usage: instantgallery.py [-h] [--title TITLE] [--language LNG] [--no-exif]
+                         [--no-rotate] [--sort] [-y] [-s]
+                         INPUT OUTPUT
+
+Makes a gallery. Now.
+
+positional arguments:
+  INPUT                 This is directory with pictures for the gallery.
+                        Attention: no subdirectories will be used!
+  OUTPUT                Sets where the gallery should be created.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --title TITLE, -t TITLE
+                        Sets the title of the gallery
+  --language LNG, -l LNG
+                        Sets the language to be used in output files.
+                        Available languages: en de
+  --no-exif, -e         don't output EXIF data
+  --no-rotate, -r       Don't try to automatically rotate pictures.
+  --sort, -c            Try to sort the pictures chronologically. We try first
+                        to use EXIF as source for the timestamps, then
+                        mtime().
+  -y                    Say yes to everything.
+  -s                    Skips the generation of thumbnails and similar things.
+                        Use this only if you're aware of what you're doing.
+

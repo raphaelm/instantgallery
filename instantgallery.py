@@ -249,7 +249,7 @@ def makegallery(options):
 	f.close()
 		
 		
-parser = argparse.ArgumentParser(description='Make a gallery. Now.')
+parser = argparse.ArgumentParser(description='Makes a gallery. Now.')
 parser.add_argument('input', metavar='INPUT', type=str,
                    help='This is directory with pictures for the gallery. Attention: no subdirectories will be used!')
 parser.add_argument('output', metavar='OUTPUT', type=str,
@@ -264,10 +264,10 @@ parser.add_argument('--no-rotate', '-r', action='store_false', dest='autorotate'
                    help='Don\'t try to automatically rotate pictures.')
 parser.add_argument('--sort', '-c', action='store_true', dest='sort',
                    help='Try to sort the pictures chronologically. We try first to use EXIF as source for the timestamps, then mtime().')
-parser.add_argument('-s', action="store_true",
-                   help='Skips the generation of thumbnails and similar things. Use this only if you\'re aware of what you\'re doing.')
 parser.add_argument('-y', action="store_true", dest='yes',
                    help='Say yes to everything.')
+parser.add_argument('-s', action="store_true",
+                   help='Skips the generation of thumbnails and similar things. Use this only if you\'re aware of what you\'re doing.')
 args = parser.parse_args()
 
 makegallery(args)
