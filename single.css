@@ -14,12 +14,16 @@ img#main {
 	top: 50%;
 	margin-top: -50px;
 	left: 10px;
+	width: 100px;
+	height: 100px;
 }
 #next {
 	position: fixed;
 	top: 50%;
 	margin-top: -50px;
 	right: 10px;
+	width: 100px;
+	height: 100px;
 }
 a img {
 	border: none;
