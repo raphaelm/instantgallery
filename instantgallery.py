@@ -14,12 +14,13 @@ from PIL import Image
 
 import EXIF
 
+VERSION = '11/12/22'
 LNGLIST = ['en', 'de']
 langstrings = {
 	'de': {
 		'stats': '%d Bilder &middot; generiert am %s',
 		'back': 'zurück zur Übersicht',
-		'powered': "generiert mit <a href='https://github.com/raphaelm/instantgallery'>instantgallery</a> von Raphael Michel",
+		'powered': "generiert mit <a href='https://github.com/raphaelm/instantgallery'>instantgallery</a> von Raphael Michel (Version %s)" % VERSION,
 		'camera': 'Kamera: %s %s',
 		'res': 'Original-Auflösung: %dM',
 		'metering': 'Belichtungsmessung: %s',
@@ -35,7 +36,7 @@ langstrings = {
 	'en': {
 		'stats': '%d pictures &middot; generated %s',
 		'back': 'back to main page',
-		'powered': "generated using <a href='https://github.com/raphaelm/instantgallery'>instantgallery</a> by Raphael Michel",
+		'powered': "generated using <a href='https://github.com/raphaelm/instantgallery'>instantgallery</a> by Raphael Michel (version %s)" % VERSION,
 		'camera': 'Camera: %s %s',
 		'res': 'Original resolution: %dM',
 		'metering': 'Metering mode: %s',
@@ -92,12 +93,12 @@ def makegallery(options):
 		else:
 			c = raw_input()
 			
-		if options.yes or c.startswith(("y", "j", "Y", "J")):
+		if (options.yes or c.startswith(("y", "j", "Y", "J"))) and (not options.s):
 			shutil.rmtree(thumbdir)
 			shutil.rmtree(picdir)
 			shutil.rmtree(pagedir)
-		else:
-			print abort
+		elif not options.s:
+			print "Abort"
 			sys.exit(0)
 		
 	if not os.path.exists(thumbdir):
