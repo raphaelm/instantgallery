@@ -160,7 +160,6 @@ def makegallery(options):
 				cmdline.append("-rotate")
 				cmdline.append("90")
 			cmdline.append("%s%08d.jpg" % (thumbdir, i))
-			print cmdline
 			subprocess.Popen(cmdline).wait()
 				
 			im.thumbnail((1920,1080), Image.ANTIALIAS)
