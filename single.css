@@ -42,8 +42,15 @@ a {
 	opacity: 0;
 }
 .exif table {
-	width: 300px;
+	width: 450px;
 	color: white;
+}
+.exifsmall {
+	width: 300px;
+	margin-left: -150px;
+}
+.exifsmall table {
+	width: 300px;
 }
 .exif table td {
 	text-align: left;

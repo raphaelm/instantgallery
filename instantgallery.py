@@ -121,7 +121,7 @@ def makegallery(options):
 	picdir = options.output+"pictures/"
 	pagedir = options.output+"picpages/"
 	
-	if os.path.exists(thumbdir) or os.path.exists(picdir) or os.path.exists(pagedir):
+	if (os.path.exists(thumbdir) or os.path.exists(picdir) or os.path.exists(pagedir)) and not options.s:
 		print "Content of the following directories will be deleted:"
 		print thumbdir
 		print picdir
@@ -132,11 +132,11 @@ def makegallery(options):
 		else:
 			c = raw_input()
 			
-		if (options.yes or c.startswith(("y", "j", "Y", "J"))) and (not options.s):
+		if (options.yes or c.startswith(("y", "j", "Y", "J"))):
 			shutil.rmtree(thumbdir)
 			shutil.rmtree(picdir)
 			shutil.rmtree(pagedir)
-		elif not options.s:
+		else:
 			print "Abort"
 			sys.exit(0)
 		
@@ -236,7 +236,12 @@ def makegallery(options):
 		html += "<br /><a href='../index.html' id='back'>"+lang["back"]+"</a>"
 		fname = fnames[j]
 		if fname.endswith(("jpeg", "JPEG", "jpg", "JPG")) and options.exif:
-			html += "<div class='exif'><table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
+			gps = (options.gps and 'GPS GPSLatitude' in tags)
+			if gps:
+				html += "<div class='exif'>"
+			else:
+				html += "<div class='exif exifsmall'>"
+			html += "<table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
 			e = open(fname)
 			tags = EXIF.process_file(e, details=False)
 			e.close()
@@ -246,15 +251,24 @@ def makegallery(options):
 				dt = time.strptime(str(tags['EXIF DateTimeOriginal']), "%Y:%m:%d %H:%M:%S")
 				taghtml.append(lang['taken'] % time.strftime(lang['datetime'], dt))
 			if 'EXIF ExposureTime' in tags:
-				taghtml.append(lang['exptime'] % tags['EXIF ExposureTime'])
+				tv = tags['EXIF ExposureTime']
+				if tv.values[0].den == 2 or tv.values[0].den == 5:
+					tv = float(tv.values[0].num)/float(tv.values[0].den)
+				taghtml.append(lang['exptime'] % tv)
 			if 'EXIF FNumber' in tags:
-				taghtml.append(lang['fnumber'] % tags['EXIF FNumber'])
+				tv = tags['EXIF FNumber']
+				if tv.values[0].den == 2 or tv.values[0].den == 5:
+					tv = float(tv.values[0].num)/float(tv.values[0].den)
+				taghtml.append(lang['fnumber'] % tv)
 			if 'EXIF Flash' in tags:
 				taghtml.append(lang['flashfield'] % lang['flash'][str(tags['EXIF Flash'])])
 			if 'EXIF ISOSpeedRatings' in tags:
 				taghtml.append(lang['iso'] % tags['EXIF ISOSpeedRatings'])
 			if 'EXIF FocalLength' in tags:
-				taghtml.append(lang['focallength'] % tags['EXIF FocalLength'])
+				tv = tags['EXIF FocalLength']
+				if tv.values[0].den == 2 or tv.values[0].den == 5:
+					tv = float(tv.values[0].num)/float(tv.values[0].den)
+				taghtml.append(lang['focallength'] % tv)
 			if 'EXIF MeteringMode' in tags:
 				taghtml.append(lang['metering'] % tags['EXIF MeteringMode'])
 			if 'EXIF ExifImageLength' in tags:
@@ -265,7 +279,7 @@ def makegallery(options):
 								
 			html += "</tr><tr>".join(taghtml)
 				
-			if options.gps and 'GPS GPSLatitude' in tags:
+			if gps:
 				lat = [float(x.num/x.den) for x in tags['GPS GPSLatitude'].values]
 				latr = str(tags['GPS GPSLatitudeRef'].values)
 				lon = [float(x.num/x.den) for x in tags['GPS GPSLongitude'].values]
