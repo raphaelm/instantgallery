@@ -46,7 +46,8 @@ Requirements:
 =======================================================================================
 
 usage: instantgallery.py [-h] [--title TITLE] [--language LNG] [--no-exif]
-                         [--no-rotate] [--sort] [-y] [-s]
+                         [--no-rotate] [--sort] [--no-date] [--no-gps] [-y]
+                         [-s]
                          INPUT OUTPUT
 
 Makes a gallery. Now.
@@ -63,12 +64,15 @@ optional arguments:
   --language LNG, -l LNG
                         Sets the language to be used in output files.
                         Available languages: en de
-  --no-exif, -e         don't output EXIF data
+  --no-exif, -e         don't output details from EXIF data
   --no-rotate, -r       Don't try to automatically rotate pictures.
   --sort, -c            Try to sort the pictures chronologically. We try first
                         to use EXIF as source for the timestamps, then
                         mtime().
+  --no-date, -d         Prevents instantgallery.py from showing the date and
+                        time of the picutres on the index page.
+  --no-gps, -g          Don't display GPS data (does only make sense if EXIF
+                        is displayed).
   -y                    Say yes to everything.
   -s                    Skips the generation of thumbnails and similar things.
                         Use this only if you're aware of what you're doing.
-
