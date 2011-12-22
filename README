@@ -25,6 +25,13 @@ Output example (German): http://www.raphaelmichel.de/bilder/capitals/
 Please report bugs to <raphael@geeksfactory.de>
 
 =======================================================================================
+
+Note: The default style loads a shiny font from Google's servers using
+their font API. This may be a privacy issue from your point of view. In this
+case, just change the few lines in index.css and single.css.
+
+=======================================================================================
+
 Requirements:
 	* Python 2.7
 		http://python.org/
