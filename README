@@ -46,7 +46,7 @@ Requirements:
 =======================================================================================
 
 usage: instantgallery.py [-h] [--title TITLE] [--language LNG] [--no-exif]
-                         [--no-rotate] [--sort] [--no-date] [--no-gps] [-y]
+                         [--no-rotate] [--no-sort] [--no-date] [--no-gps] [-y]
                          [-s]
                          INPUT OUTPUT
 
@@ -66,9 +66,9 @@ optional arguments:
                         Available languages: en de
   --no-exif, -e         don't output details from EXIF data
   --no-rotate, -r       Don't try to automatically rotate pictures.
-  --sort, -c            Try to sort the pictures chronologically. We try first
-                        to use EXIF as source for the timestamps, then
-                        mtime().
+  --no-sort, -c         Do not try to sort the pictures chronologically. (We
+                        try first to use EXIF as source for the timestamps,
+                        then mtime().)
   --no-date, -d         Prevents instantgallery.py from showing the date and
                         time of the picutres on the index page.
   --no-gps, -g          Don't display GPS data (does only make sense if EXIF

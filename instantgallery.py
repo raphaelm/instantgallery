@@ -14,7 +14,7 @@ from PIL import Image
 
 import EXIF
 
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 LNGLIST = ['en', 'de']
 langstrings = {
 	'de': {
@@ -353,8 +353,8 @@ parser.add_argument('--no-exif', '-e', action='store_false', dest='exif',
                    help='don\'t output details from EXIF data')
 parser.add_argument('--no-rotate', '-r', action='store_false', dest='autorotate',
                    help='Don\'t try to automatically rotate pictures.')
-parser.add_argument('--sort', '-c', action='store_true', dest='sort',
-                   help='Try to sort the pictures chronologically. We try first to use EXIF as source for the timestamps, then mtime().')
+parser.add_argument('--no-sort', '-c', action='store_false', dest='sort',
+                   help='Do not try to sort the pictures chronologically. (We try first to use EXIF as source for the timestamps, then mtime().)')
 parser.add_argument('--no-date', '-d', action="store_false", dest='displaydate',
                    help='Prevents instantgallery.py from showing the date and time of the picutres on the index page.')
 parser.add_argument('--no-gps', '-g', action="store_false", dest='gps',
