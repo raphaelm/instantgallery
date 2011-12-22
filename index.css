@@ -36,6 +36,9 @@ img {
 	display: inline-block;
 	text-decoration: none;
 	height: 100px;
+	background: url(loading.gif);
+	width: 100px;
+	margin-bottom: 1px;
 }
 .thumb span {
 	display: block;
@@ -49,4 +52,7 @@ img {
 	text-align: center;
 	opacity: 0;
 	text-decoration: none;
+}
+.thumb.dir span {
+	opacity: 0.8;
 }

@@ -14,13 +14,12 @@ from PIL import Image
 
 import EXIF
 
-VERSION = '1.0.1'
+VERSION = '1.2.0dev'
 LNGLIST = ['en', 'de']
 langstrings = {
 	'de': {
-		'stats': '%d Bilder &middot; generiert am %s',
 		'back': 'zurück zur Übersicht',
-		'powered': "generiert mit <a href='https://github.com/raphaelm/instantgallery'>instantgallery</a> von Raphael Michel (Version %s)" % VERSION,
+		'powered': "generiert am %s mit <a href='https://github.com/raphaelm/instantgallery'>instantgallery</a> von Raphael Michel (Version %s)",
 		'details': 'Bilddetails',
 		'camera': '<td>Kamera:</td><td>%s %s</td>',
 		'res': '<td>Original-Auflösung:</td><td>%dM</td>',
@@ -49,12 +48,15 @@ langstrings = {
               'Auto Fired (?)': 'automatisch, ausgelöst (?)',
               'Auto Fired (!)': 'automatisch, ausgelöst (!)',
               'Not Available': 'nicht verfügbar'
-		}
+		},
+		'up': 'eine Ebene zurück',
+		'top': 'oberste Ebene',
+		'number': '%d Bilder'
 	},
 	'en': {
 		'stats': '%d pictures &middot; generated %s',
 		'back': 'back to main page',
-		'powered': "generated using <a href='https://github.com/raphaelm/instantgallery'>instantgallery</a> by Raphael Michel (version %s)" % VERSION,
+		'powered': "generated %s using <a href='https://github.com/raphaelm/instantgallery'>instantgallery</a> by Raphael Michel (version %s)",
 		'details': 'Picture details',
 		'camera': '<td>Camera:</td><td>%s %s</td>',
 		'res': '<td>Original resolution:</td><td>%dM</td>',
@@ -84,42 +86,59 @@ langstrings = {
               'Auto Fired (?)': 'Auto Fired (?)',
               'Auto Fired (!)': 'Auto Fired (!)',
               'Not Available': 'Not Available'
-		}
+		},
+		'up': 'up',
+		'top': 'top',
+		'number': '%d pictures'
 	}
 }
 FORMATS = ("png", "PNG", "jpg", "JPG", "bmp", "BMP", "jpeg", "JPEG", "tif", "TIF", "tiff", "TIFF")
 
-def makegallery(options):
+def makegallery(options, sub = 0, inputd = False, outputd = False):
 	global langstrings, FORMATS
 	lang = langstrings[options.lang]
 	
+	if not outputd: outputd = options.output
+	if not inputd: inputd = options.input
+	
 	# Argument validation
-	if not options.input.endswith("/"):
-		options.input += "/"
-	if not options.output.endswith("/"):
-		options.output += "/"
-	if not os.path.exists(options.input):
-		raise ValueError("%s does not exist" % options.input)
+	if not inputd.endswith("/"):
+		inputd += "/"
+	if not outputd.endswith("/"):
+		outputd += "/"
+	if not os.path.exists(inputd):
+		raise ValueError("%s does not exist" % inputd)
 			
-	if not os.path.exists(options.output):
+	if not os.path.exists(outputd):
 		try:
-			os.mkdir(options.output)
+			os.mkdir(outputd)
 		except:
-			raise ValueError("We were unable to create %s" % options.output)
+			raise ValueError("We were unable to create %s" % outputd)
 			
 	if not os.path.exists(LIBDIR+'/single.css'):
 		raise ValueError("%s does not exist" % LIBDIR)
 			
-	shutil.copy(LIBDIR+'/single.css', options.output+'single.css')
-	shutil.copy(LIBDIR+'/index.css', options.output+'index.css')
-	shutil.copy(LIBDIR+'/jquery.js', options.output+'jquery.js')
-	shutil.copy(LIBDIR+'/single.js', options.output+'single.js')
+	if sub == 0:
+		shutil.copy(LIBDIR+'/single.css', outputd+'single.css')
+		shutil.copy(LIBDIR+'/index.css', outputd+'index.css')
+		shutil.copy(LIBDIR+'/jquery.js', outputd+'jquery.js')
+		shutil.copy(LIBDIR+'/single.js', outputd+'single.js')
+		shutil.copy(LIBDIR+'/index.js', outputd+'index.js')
+		shutil.copy(LIBDIR+'/loading.gif', outputd+'loading.gif')
 			
-	# Picture creation
-	htmldir = options.output
-	thumbdir = options.output+"thumbs/"
-	picdir = options.output+"pictures/"
-	pagedir = options.output+"picpages/"
+	wayback = "../"*sub
+			
+	# Directory creation
+	htmldir = outputd
+	thumbdir = outputd+"thumbs/"
+	picdir = outputd+"pictures/"
+	pagedir = outputd+"picpages/"
+	
+	title = options.title
+	if sub > 0:
+		n = outputd.replace(options.output, "")
+		if n.endswith("/"): n = n[:-1]
+		title += " "+n.replace("/", " / ")
 	
 	if (os.path.exists(thumbdir) or os.path.exists(picdir) or os.path.exists(pagedir)) and not options.s:
 		print "Content of the following directories will be deleted:"
@@ -156,14 +175,24 @@ def makegallery(options):
 		except:
 			raise ValueError("We were unable to write in the output directory")
 			
-	# picture generation
+	# Picture scanning and resizing
+	new = 0
 	fnames = [None]
-	d = os.listdir(options.input)
+	d = os.listdir(inputd)
 	dwithtimes = []
+	dirs = []
 	if options.sort:
 		for f in d:
-			fname = options.input+f
-			if fname.endswith(FORMATS):
+			fname = inputd+f
+			
+			if os.path.isdir(fname) and sub < options.sub:
+				# Subdirectory
+				print "Entering directory %s" % fname
+				subdir = makegallery(options, sub+1, fname, outputd+f)
+				if (subdir[1]+subdir[2]) > 0:
+					dirs.append((f, subdir[0], subdir[1]))
+							
+			elif fname.endswith(FORMATS):
 				try:
 					if fname.endswith(("jpeg", "JPEG", "jpg", "JPG")):
 						e = open(fname)
@@ -172,11 +201,12 @@ def makegallery(options):
 						ts = time.strptime(str(tags['EXIF DateTimeOriginal']), "%Y:%m:%d %H:%M:%S")
 						o = str(tags['Image Orientation'])
 					else:
-						ts = os.path.getmtime(fname)
+						ts = time.localtime(os.path.getmtime(fname))
 						o = False
 				except:
-					ts = os.path.getmtime(fname)
+					ts = time.localtime(os.path.getmtime(fname))
 					o = False
+				if ts > 0: new = ts
 				dwithtimes.append((f, ts, o))
 		d = sorted(dwithtimes, key=lambda f: f[1])
 	else:
@@ -184,17 +214,17 @@ def makegallery(options):
 			
 	i = 1
 	for f in d:
-		fname = options.input+f[0]
+		fname = inputd+f[0]
 		sys.stdout.write("[1] Processing file %04d of %04d (%02d%%)       \r" % (i, len(d), i*100/len(d)))
 		sys.stdout.flush()
 		if fname.endswith(FORMATS):
 			fnames.append(fname)
 			if options.s:
 				i += 1
-				continue #debug
+				continue
 						
 			im = Image.open(fname)			
-			cmdline = ["convert", fname, "-thumbnail", "100x100^", "-gravity", "center", "-extent", "100x100"]
+			cmdline = ["convert", fname, "-thumbnail", "100x100^", "-gravity", "center", "-extent", "100x100", "-quality", "80"]
 			if options.autorotate and f[2] == 'Rotated 90 CW' and im.size[0] > im.size[1]:
 				im = im.rotate(-90)
 				cmdline.append("-rotate")
@@ -220,13 +250,13 @@ def makegallery(options):
 					<head>
 						<title>%s</title>
 						<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-						<script type="text/javascript" src="../jquery.js"></script>
-						<script type="text/javascript" src="../single.js"></script>
-						<link rel="stylesheet" href="../single.css" type="text/css" />
+						<script type="text/javascript" src="../%sjquery.js"></script>
+						<script type="text/javascript" src="../%ssingle.js"></script>
+						<link rel="stylesheet" href="../%ssingle.css" type="text/css" />
 					</head>
 
 					<body>
-						""" % (options.title)
+						""" % (title, wayback, wayback, wayback)
 		if j > 1:
 			html += ('<a href="%08d.html" class="thumb" id="prev"><img src="../thumbs/%08d.jpg" alt="" /><span>'+lang['prev']+'</span></a> ') % (j-1, j-1)
 		html += '<img src="../pictures/%08d.jpg" alt="" id="main" />' % j
@@ -249,8 +279,10 @@ def makegallery(options):
 			html += "<table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
 			
 			if 'EXIF DateTimeOriginal' in tags:
-				dt = time.strptime(str(tags['EXIF DateTimeOriginal']), "%Y:%m:%d %H:%M:%S")
-				taghtml.append(lang['taken'] % time.strftime(lang['datetime'], dt))
+				tv = str(tags['EXIF DateTimeOriginal'])
+				if tv != '0000:00:00 00:00:00':
+					dt = time.strptime(tv, "%Y:%m:%d %H:%M:%S")
+					taghtml.append(lang['taken'] % time.strftime(lang['datetime'], dt))
 			if 'EXIF ExposureTime' in tags:
 				tv = tags['EXIF ExposureTime']
 				if tv.values[0].den == 2 or tv.values[0].den == 5:
@@ -262,7 +294,9 @@ def makegallery(options):
 					tv = float(tv.values[0].num)/float(tv.values[0].den)
 				taghtml.append(lang['fnumber'] % tv)
 			if 'EXIF Flash' in tags:
-				taghtml.append(lang['flashfield'] % lang['flash'][str(tags['EXIF Flash'])])
+				fl = str(tags['EXIF Flash'])
+				if fl in lang['flash']:
+					taghtml.append(lang['flashfield'] % lang['flash'][fl])
 			if 'EXIF ISOSpeedRatings' in tags:
 				taghtml.append(lang['iso'] % tags['EXIF ISOSpeedRatings'])
 			if 'EXIF FocalLength' in tags:
@@ -306,43 +340,55 @@ def makegallery(options):
 	# index page
 	sys.stdout.write("[3] Generating index                       \r")
 	sys.stdout.flush()
+	
 	html = ("""<!DOCTYPE html>
 				<html>
 				<head>
 					<title>%s</title>
 					<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-					<link rel="stylesheet" href="./index.css" type="text/css" />
-					<script type="text/javascript" src="./jquery.js"></script>
-					<script type="text/javascript">
-					$(document).ready(function(){
-						$(".thumb").bind("mouseenter", function(){
-							if($(this).children("span").css("opacity") == 0){
-								$(this).children("span").animate({opacity: 0.7}, 100);
-							}
-						});
-						$(".thumb").bind("mouseleave", function(){
-							$(this).children("span").animate({opacity: 0}, 100);
-						});
-					});
-					</script>
+					<link rel="stylesheet" href="%sindex.css" type="text/css" />
+					<script type="text/javascript" src="%sjquery.js"></script>
+					<script type="text/javascript" src="%sindex.js"></script>
 				</head>
 
-				<body><h1>%s <small>"""+lang['stats']+"""</small></h1>""") % (options.title,options.title,i-1,datetime.date.today().strftime("%d.%m.%Y"))
+				<body><h1>%s""") % (title, wayback, wayback, wayback, title)
+	if sub == 1:
+		html += "   <small><a href='../index.html'>"+lang['up']+"</a></small>"
+	elif sub > 1:
+		html += "   <small><a href='../index.html'>"+lang['up']+"</a> &middot; <a href='"+wayback+"index.html'>"+lang['top']+'</a></small>'
+	html += "</h1>"
+	
+	if len(dirs) > 0:
+		if options.sort:
+			dirs = sorted(dirs, key=lambda f: f[1])
+		else:
+			dirs = sorted(dirs, key=lambda f: f[0])
+			
+		for directory in dirs:
+			html += '<a href="%s/index.html" class="thumb dir' % directory[0]
+			if options.hoverscrolling:
+				html += ' anim'
+			html += '" rel="%d"><img rel="%s" src="%s/thumbs/00000001.jpg" alt="" />' % (directory[2],directory[0],directory[0])
+			html += '<span>'+directory[0]+'<br />'+(lang["number"] % directory[2])+'</span>'
+			html += '</a> '
+			
 	for j in xrange(1, i):
 		html += '<a href="picpages/%08d.html" class="thumb"><img src="thumbs/%08d.jpg" alt="" />' % (j,j)
 		if options.displaydate:
 			html += '<span>'+time.strftime(lang['2ldatetime'], d[j-1][1])+'</span>'
 		html += '</a> '
-	html += "<div class='poweredby'>"+lang['powered']+"</div>"
+		
+	html += ("<div class='poweredby'>"+lang['powered']+"</div>") % (datetime.date.today().strftime("%d.%m.%Y"), VERSION)
 	html += "</body></html>"
 	f = open("%sindex.html" % (htmldir), "w")
 	f.write(html)
 	f.close()
-		
-		
+	return (new, i-1, len(dirs))
+	
+# parse arguments		
 parser = argparse.ArgumentParser(description='Makes a gallery. Now.')
 parser.add_argument('input', metavar='INPUT', type=str,
-                   help='This is directory with pictures for the gallery. Attention: no subdirectories will be used!')
+                   help='This is directory with pictures for the gallery.')
 parser.add_argument('output', metavar='OUTPUT', type=str,
                    help='Sets where the gallery should be created.')
 parser.add_argument('--title', '-t', metavar='TITLE', type=str, default='Image Gallery',
@@ -359,8 +405,10 @@ parser.add_argument('--no-date', '-d', action="store_false", dest='displaydate',
                    help='Prevents instantgallery.py from showing the date and time of the picutres on the index page.')
 parser.add_argument('--no-gps', '-g', action="store_false", dest='gps',
                    help='Don\'t display GPS data (does only make sense if EXIF is displayed).')
-
-                 
+parser.add_argument('--sub', '-S', type=int, dest='sub', default=63, metavar='N',
+                   help='Subdirectory entering depth (0 for staying in the original directory).')
+parser.add_argument('--hoverscrolling', dest='hoverscrolling', action='store_true',
+                   help='An effect for subdirectories. Was intended to look nicer than it acutally does.')
 parser.add_argument('-y', action="store_true", dest='yes',
                    help='Say yes to everything.')
 parser.add_argument('-s', action="store_true",

@@ -46,15 +46,14 @@ Requirements:
 =======================================================================================
 
 usage: instantgallery.py [-h] [--title TITLE] [--language LNG] [--no-exif]
-                         [--no-rotate] [--no-sort] [--no-date] [--no-gps] [-y]
-                         [-s]
+                         [--no-rotate] [--no-sort] [--no-date] [--no-gps]
+                         [--sub N] [--hoverscrolling] [-y] [-s]
                          INPUT OUTPUT
 
 Makes a gallery. Now.
 
 positional arguments:
   INPUT                 This is directory with pictures for the gallery.
-                        Attention: no subdirectories will be used!
   OUTPUT                Sets where the gallery should be created.
 
 optional arguments:
@@ -73,6 +72,11 @@ optional arguments:
                         time of the picutres on the index page.
   --no-gps, -g          Don't display GPS data (does only make sense if EXIF
                         is displayed).
+  --sub N, -S N         Subdirectory entering depth (0 for staying in the
+                        original directory).
+  --hoverscrolling      An effect for subdirectories. Was intended to look
+                        nicer than it acutally does.
   -y                    Say yes to everything.
   -s                    Skips the generation of thumbnails and similar things.
                         Use this only if you're aware of what you're doing.
+
