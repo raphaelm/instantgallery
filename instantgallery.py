@@ -327,7 +327,7 @@ def makegallery(options):
 					</script>
 				</head>
 
-				<body><h1>%s <small>"""+lang['stats']+"""</small></h1>""") % (options.title,options.title,i,datetime.date.today().strftime("%d.%m.%Y"))
+				<body><h1>%s <small>"""+lang['stats']+"""</small></h1>""") % (options.title,options.title,i-1,datetime.date.today().strftime("%d.%m.%Y"))
 	for j in xrange(1, i):
 		html += '<a href="picpages/%08d.html" class="thumb"><img src="thumbs/%08d.jpg" alt="" />' % (j,j)
 		if options.displaydate:
