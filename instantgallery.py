@@ -14,7 +14,7 @@ from PIL import Image
 
 import EXIF
 
-VERSION = '11/12/22'
+VERSION = '1.0.0'
 LNGLIST = ['en', 'de']
 langstrings = {
 	'de': {
