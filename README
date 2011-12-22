@@ -16,9 +16,11 @@ tries to read there EXIF "OriginalDate" field first and uses Unix' mtime() if
 it failes.
 
 instantgallery.py is able to generate galleries in other languages than
-English, currently only German is supportet. If you add another language
+English, currently only German is supported. If you add another language
 I would be glad to get an email (<raphael@geeksfactory.de>) or just fork
 the project on github (<https://github.com/raphaelm/instantgallery>).
+
+Output example (German): http://www.raphaelmichel.de/bilder/oslo.public/
 
 Please report bugs to <raphael@geeksfactory.de>
 
