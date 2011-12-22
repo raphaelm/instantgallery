@@ -236,16 +236,17 @@ def makegallery(options):
 		html += "<br /><a href='../index.html' id='back'>"+lang["back"]+"</a>"
 		fname = fnames[j]
 		if fname.endswith(("jpeg", "JPEG", "jpg", "JPG")) and options.exif:
-			gps = (options.gps and 'GPS GPSLatitude' in tags)
+			e = open(fname)
+			tags = EXIF.process_file(e, details=False)
+			e.close()
+			taghtml = []
+			
+			gps = (options.gps and ('GPS GPSLatitude' in tags))
 			if gps:
 				html += "<div class='exif'>"
 			else:
 				html += "<div class='exif exifsmall'>"
 			html += "<table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
-			e = open(fname)
-			tags = EXIF.process_file(e, details=False)
-			e.close()
-			taghtml = []
 			
 			if 'EXIF DateTimeOriginal' in tags:
 				dt = time.strptime(str(tags['EXIF DateTimeOriginal']), "%Y:%m:%d %H:%M:%S")
