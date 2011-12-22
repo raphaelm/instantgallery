@@ -1,3 +1,4 @@
 * EXIF
-	ExposureProgram und MeteringMode übersetzen
+	Translate ExposureProgram and MeteringMode
 	WhiteBalance
+* JavaScript powered navigation (more speed with preloading)
