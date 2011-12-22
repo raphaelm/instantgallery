@@ -21,33 +21,41 @@ langstrings = {
 		'stats': '%d Bilder &middot; generiert am %s',
 		'back': 'zurück zur Übersicht',
 		'powered': "generiert mit <a href='https://github.com/raphaelm/instantgallery'>instantgallery</a> von Raphael Michel (Version %s)" % VERSION,
-		'camera': 'Kamera: %s %s',
-		'res': 'Original-Auflösung: %dM',
-		'metering': 'Belichtungsmessung: %s',
-		'focallength': 'Brennweite: %smm',
-		'iso': 'ISO-Zahl: %s',
-		'flash': 'Blitz: %s',
-		'noflash': 'ohne Blitz',
-		'fnumber': 'Blendenzahl: F%s',
-		'exptime': 'Belichtungszeit: %ss',
-		'taken': 'Aufgenommen: %s',
-		'datetime': "%d.%m.%Y %H:%M:%S"		
+		'details': 'Bilddetails',
+		'camera': '<td>Kamera:</td><td>%s %s</td>',
+		'res': '<td>Original-Auflösung:</td><td>%dM</td>',
+		'metering': '<td>Belichtungsmessung:</td><td>%s</td>',
+		'focallength': '<td>Brennweite:</td><td>%smm</td>',
+		'iso': '<td>ISO-Zahl:</td><td>%s</td>',
+		'flash': '<td>Blitz:</td><td>%s</td>',
+		'noflash': '<td>Blitz:</td><td>ohne Blitz</td>',
+		'fnumber': '<td>Blendenzahl:</td><td>F%s</td>',
+		'exptime': '<td>Belichtungszeit:</td><td>%ss</td>',
+		'taken': '<td>Aufgenommen:</td><td>%s</td>',
+		'datetime': "%d.%m.%Y %H:%M:%S",
+		'2ldatetime': "%d.%m.%Y<br />%H:%M:%S",
+		'next': 'nächstes',
+		'prev': 'vorheriges'
 	},
 	'en': {
 		'stats': '%d pictures &middot; generated %s',
 		'back': 'back to main page',
 		'powered': "generated using <a href='https://github.com/raphaelm/instantgallery'>instantgallery</a> by Raphael Michel (version %s)" % VERSION,
-		'camera': 'Camera: %s %s',
-		'res': 'Original resolution: %dM',
-		'metering': 'Metering mode: %s',
-		'focallength': 'Focal length: %smm',
-		'iso': 'ISO: %s',
-		'flash': 'Flash: %s',
-		'noflash': 'No flash',
-		'fnumber': 'F number: F%s',
-		'exptime': 'Exposure time: %ss',
-		'taken': 'Taken: %s',
-		'datetime': "%m/%d/%Y %H:%M:%S"		
+		'details': 'Picture details',
+		'camera': '<td>Camera:</td><td>%s %s</td>',
+		'res': '<td>Original resolution:</td><td>%dM</td>',
+		'metering': '<td>Metering mode:</td><td>%s</td>',
+		'focallength': '<td>Focal length:</td><td>%smm</td>',
+		'iso': '<td>ISO:</td><td>%s</td>',
+		'flash': '<td>Flash:</td><td>%s</td>',
+		'noflash': '<td>Flash:</td><td>No flash</td>',
+		'fnumber': '<td>F number:</td><td>F%s</td>',
+		'exptime': '<td>Exposure time:</td><td>%ss</td>',
+		'taken': '<td>Taken: </td><td>%s</td>',
+		'datetime': "%m/%d/%Y %H:%M:%S",
+		'2ldatetime': "%m/%d/%Y<br />%H:%M:%S",
+		'next': 'next',
+		'prev': 'previous'
 	}
 }
 FORMATS = ("png", "PNG", "jpg", "JPG", "bmp", "BMP", "jpeg", "JPEG", "tif", "TIF", "tiff", "TIFF")
@@ -75,6 +83,8 @@ def makegallery(options):
 			
 	shutil.copy(LIBDIR+'/single.css', options.output+'single.css')
 	shutil.copy(LIBDIR+'/index.css', options.output+'index.css')
+	shutil.copy(LIBDIR+'/jquery.js', options.output+'jquery.js')
+	shutil.copy(LIBDIR+'/single.js', options.output+'single.js')
 			
 	# Picture creation
 	htmldir = options.output
@@ -177,21 +187,23 @@ def makegallery(options):
 					<head>
 						<title>%s</title>
 						<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+						<script type="text/javascript" src="../jquery.js"></script>
+						<script type="text/javascript" src="../single.js"></script>
 						<link rel="stylesheet" href="../single.css" type="text/css" />
 					</head>
 
 					<body>
 						""" % (options.title)
 		if j > 1:
-			html += '<a href="%08d.html"><img src="../thumbs/%08d.jpg" alt="" id="prev" /></a> ' % (j-1, j-1)
+			html += ('<a href="%08d.html" class="thumb" id="prev"><img src="../thumbs/%08d.jpg" alt="" /><span>'+lang['prev']+'</span></a> ') % (j-1, j-1)
 		html += '<img src="../pictures/%08d.jpg" alt="" id="main" />' % j
 		if j < i-1:
-			html += ' <a href="%08d.html"><img src="../thumbs/%08d.jpg" alt="" id="next" /></a>' % (j+1, j+1)
+			html += (' <a href="%08d.html" class="thumb" id="next"><img src="../thumbs/%08d.jpg" alt="" /><span>'+lang['next']+'</span></a>') % (j+1, j+1)
 			
-		html += "<br /><a href='../index.html'>"+lang["back"]+"</a>"
+		html += "<br /><a href='../index.html' id='back'>"+lang["back"]+"</a>"
 		fname = fnames[j]
 		if fname.endswith(("jpeg", "JPEG", "jpg", "JPG")) and options.exif:
-			html += "<div class='exif'>"
+			html += "<div class='exif'><table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
 			e = open(fname)
 			tags = EXIF.process_file(e, details=False)
 			e.close()
@@ -221,8 +233,8 @@ def makegallery(options):
 			if 'Image Make' in tags and 'Image Model' in tags:
 				taghtml.append(lang['camera'] % (tags['Image Make'], tags['Image Model']))
 				
-			html += " &middot; ".join(taghtml)
-			html += "</div>"
+			html += "</tr><tr>".join(taghtml)
+			html += "</tr></table></div>"
 		html += "</body></html>"
 		f = open("%s%08d.html" % (pagedir, j), "w")
 		f.write(html)
@@ -237,11 +249,27 @@ def makegallery(options):
 					<title>%s</title>
 					<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 					<link rel="stylesheet" href="./index.css" type="text/css" />
+					<script type="text/javascript" src="./jquery.js"></script>
+					<script type="text/javascript">
+					$(document).ready(function(){
+						$(".thumb").bind("mouseenter", function(){
+							if($(this).children("span").css("opacity") == 0){
+								$(this).children("span").animate({opacity: 0.7}, 100);
+							}
+						});
+						$(".thumb").bind("mouseleave", function(){
+							$(this).children("span").animate({opacity: 0}, 100);
+						});
+					});
+					</script>
 				</head>
 
 				<body><h1>%s <small>"""+lang['stats']+"""</small></h1>""") % (options.title,options.title,i,datetime.date.today().strftime("%d.%m.%Y"))
 	for j in xrange(1, i):
-		html += '<a href="picpages/%08d.html"><img src="thumbs/%08d.jpg" alt="" id="main" /></a> ' % (j,j)
+		html += '<a href="picpages/%08d.html" class="thumb"><img src="thumbs/%08d.jpg" alt="" />' % (j,j)
+		if options.displaydate:
+			html += '<span>'+time.strftime(lang['2ldatetime'], d[j-1][1])+'</span>'
+		html += '</a> '
 	html += "<div class='poweredby'>"+lang['powered']+"</div>"
 	html += "</body></html>"
 	f = open("%sindex.html" % (htmldir), "w")
@@ -259,11 +287,13 @@ parser.add_argument('--title', '-t', metavar='TITLE', type=str, default='Image G
 parser.add_argument('--language', '-l', metavar='LNG', type=str, default='en',
                    help='Sets the language to be used in output files. Available languages:\n'+' '.join(LNGLIST), dest='lang', choices=LNGLIST)
 parser.add_argument('--no-exif', '-e', action='store_false', dest='exif',
-                   help='don\'t output EXIF data')
+                   help='don\'t output details from EXIF data')
 parser.add_argument('--no-rotate', '-r', action='store_false', dest='autorotate',
                    help='Don\'t try to automatically rotate pictures.')
 parser.add_argument('--sort', '-c', action='store_true', dest='sort',
                    help='Try to sort the pictures chronologically. We try first to use EXIF as source for the timestamps, then mtime().')
+parser.add_argument('--no-date', '-d', action="store_false", dest='displaydate',
+                   help='Prevents instantgallery.py from showing the date and time of the picutres on the index page.')
 parser.add_argument('-y', action="store_true", dest='yes',
                    help='Say yes to everything.')
 parser.add_argument('-s', action="store_true",

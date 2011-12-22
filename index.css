@@ -32,3 +32,21 @@ img {
 	width: 100px;
 	height: 100px;
 }
+.thumb {
+	display: inline-block;
+	text-decoration: none;
+	height: 100px;
+}
+.thumb span {
+	display: block;
+	height: 30px;
+	position: relative;
+	top: -37px;
+	background: #000;
+	font-size: 10px;
+	z-index: 200;
+	padding: 2px;
+	text-align: center;
+	opacity: 0;
+	text-decoration: none;
+}
