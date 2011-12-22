@@ -27,15 +27,29 @@ langstrings = {
 		'metering': '<td>Belichtungsmessung:</td><td>%s</td>',
 		'focallength': '<td>Brennweite:</td><td>%smm</td>',
 		'iso': '<td>ISO-Zahl:</td><td>%s</td>',
-		'flash': '<td>Blitz:</td><td>%s</td>',
-		'noflash': '<td>Blitz:</td><td>ohne Blitz</td>',
+		'flashfield': '<td>Blitz:</td><td>%s</td>',
 		'fnumber': '<td>Blendenzahl:</td><td>F%s</td>',
 		'exptime': '<td>Belichtungszeit:</td><td>%ss</td>',
 		'taken': '<td>Aufgenommen:</td><td>%s</td>',
 		'datetime': "%d.%m.%Y %H:%M:%S",
 		'2ldatetime': "%d.%m.%Y<br />%H:%M:%S",
 		'next': 'nächstes',
-		'prev': 'vorheriges'
+		'prev': 'vorheriges',
+		'flash': {
+              'No' : 'kein Blitz',
+              'Fired' : 'ausgelöst',
+              'Fired (?)': 'ausgelöst (?)',
+              'Fired (!)': 'ausgelöst (!)',
+              'Fill Fired': 'Fill Fired',
+              'Fill Fired (?)': 'Fill Fired (?)',
+              'Fill Fired (!)': 'Fill Fired (!)',
+              'Off': 'aus',
+              'Auto Off': 'automatisch, aus',
+              'Auto Fired': 'automatisch, ausgelöst',
+              'Auto Fired (?)': 'automatisch, ausgelöst (?)',
+              'Auto Fired (!)': 'automatisch, ausgelöst (!)',
+              'Not Available': 'nicht verfügbar'
+		}
 	},
 	'en': {
 		'stats': '%d pictures &middot; generated %s',
@@ -47,7 +61,7 @@ langstrings = {
 		'metering': '<td>Metering mode:</td><td>%s</td>',
 		'focallength': '<td>Focal length:</td><td>%smm</td>',
 		'iso': '<td>ISO:</td><td>%s</td>',
-		'flash': '<td>Flash:</td><td>%s</td>',
+		'flashfield': '<td>Flash:</td><td>%s</td>',
 		'noflash': '<td>Flash:</td><td>No flash</td>',
 		'fnumber': '<td>F number:</td><td>F%s</td>',
 		'exptime': '<td>Exposure time:</td><td>%ss</td>',
@@ -55,7 +69,22 @@ langstrings = {
 		'datetime': "%m/%d/%Y %H:%M:%S",
 		'2ldatetime': "%m/%d/%Y<br />%H:%M:%S",
 		'next': 'next',
-		'prev': 'previous'
+		'prev': 'previous',
+		'flash': {
+              'No' : 'No',
+              'Fired' : 'Fired',
+              'Fired (?)': 'Fired (?)',
+              'Fired (!)': 'Fired (!)',
+              'Fill Fired': 'Fill Fired',
+              'Fill Fired (?)': 'Fill Fired (?)',
+              'Fill Fired (!)': 'Fill Fired (!)',
+              'Off': 'Off',
+              'Auto Off': 'Auto Off',
+              'Auto Fired': 'Auto Fired',
+              'Auto Fired (?)': 'Auto Fired (?)',
+              'Auto Fired (!)': 'Auto Fired (!)',
+              'Not Available': 'Not Available'
+		}
 	}
 }
 FORMATS = ("png", "PNG", "jpg", "JPG", "bmp", "BMP", "jpeg", "JPEG", "tif", "TIF", "tiff", "TIFF")
@@ -170,6 +199,10 @@ def makegallery(options):
 				im = im.rotate(-90)
 				cmdline.append("-rotate")
 				cmdline.append("90")
+			elif options.autorotate and f[2] == 'Rotated 90 CCW' and im.size[0] > im.size[1]:
+				im = im.rotate(90)
+				cmdline.append("-rotate")
+				cmdline.append("-90")
 			cmdline.append("%s%08d.jpg" % (thumbdir, i))
 			subprocess.Popen(cmdline).wait()
 				
@@ -217,10 +250,7 @@ def makegallery(options):
 			if 'EXIF FNumber' in tags:
 				taghtml.append(lang['fnumber'] % tags['EXIF FNumber'])
 			if 'EXIF Flash' in tags:
-				if str(tags['EXIF Flash']) == 'Off' or str(tags['EXIF Flash']) == 'No':
-					taghtml.append(lang['noflash'])
-				else:
-					taghtml.append(lang['flash'] % tags['EXIF Flash'])
+				taghtml.append(lang['flashfield'] % lang['flash'][str(tags['EXIF Flash'])])
 			if 'EXIF ISOSpeedRatings' in tags:
 				taghtml.append(lang['iso'] % tags['EXIF ISOSpeedRatings'])
 			if 'EXIF FocalLength' in tags:
@@ -232,9 +262,27 @@ def makegallery(options):
 				taghtml.append(lang['res'] % mp)
 			if 'Image Make' in tags and 'Image Model' in tags:
 				taghtml.append(lang['camera'] % (tags['Image Make'], tags['Image Model']))
-				
+								
 			html += "</tr><tr>".join(taghtml)
+				
+			if options.gps and 'GPS GPSLatitude' in tags:
+				lat = [float(x.num/x.den) for x in tags['GPS GPSLatitude'].values]
+				latr = str(tags['GPS GPSLatitudeRef'].values)
+				lon = [float(x.num/x.den) for x in tags['GPS GPSLongitude'].values]
+				lonr = str(tags['GPS GPSLongitudeRef'].values)
+				
+				lat = (lat[2]/60.0 + lat[1])/60.0 + lat[0]
+				lon = (lon[2]/60.0 + lon[1])/60.0 + lon[0]
+				if latr == 'S': lat = lat * (-1)
+				if lonr == 'W': lon = lon * (-1)
+				
+				ex = 0.01
+				html += '</tr><tr><td colspan="2" style="text-align: center">'
+				html += '<iframe frameborder="0" height="350" marginheight="0" marginwidth="0" scrolling="no" src="http://www.openstreetmap.org/export/embed.html?bbox=%s,%s,%s,%s&amp;layer=mapnik&amp;marker=%s,%s" style="border: 1px solid black" width="440" id="map"></iframe><br />' % (lon-ex, lat-ex, lon+ex, lat+ex, lat, lon)
+				html += '<small><a href="http://www.openstreetmap.org/?lat=%s&amp;lon=%s&amp;zoom=15" target="_blank">Gr&ouml;&szlig;ere Karte anzeigen</a></small></td>' % (lat, lon)
+			
 			html += "</tr></table></div>"
+				
 		html += "</body></html>"
 		f = open("%s%08d.html" % (pagedir, j), "w")
 		f.write(html)
@@ -294,6 +342,10 @@ parser.add_argument('--sort', '-c', action='store_true', dest='sort',
                    help='Try to sort the pictures chronologically. We try first to use EXIF as source for the timestamps, then mtime().')
 parser.add_argument('--no-date', '-d', action="store_false", dest='displaydate',
                    help='Prevents instantgallery.py from showing the date and time of the picutres on the index page.')
+parser.add_argument('--no-gps', '-g', action="store_false", dest='gps',
+                   help='Don\'t display GPS data (does only make sense if EXIF is displayed).')
+
+                 
 parser.add_argument('-y', action="store_true", dest='yes',
                    help='Say yes to everything.')
 parser.add_argument('-s', action="store_true",

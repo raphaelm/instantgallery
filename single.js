@@ -1,7 +1,9 @@
 $(document).ready(function(){
 	$("#main, .exif").bind("click", function(){
 		if($(".exif").css("opacity") == 0){
-			$(".exif").animate({opacity: 0.7}, 1000);
+			if($("#map").length > 0) r = 1
+			else r = 0.7
+			$(".exif").animate({opacity: r}, 1000);
 		}else{
 			$(".exif").animate({opacity: 0}, 1000);
 		}
