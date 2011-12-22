@@ -6,12 +6,12 @@ $(document).ready(function(){
 			$(".exif").animate({opacity: 0}, 1000);
 		}
 	});
-	$(".thumb").bind("mouseover", function(){
+	$(".thumb").bind("mouseenter", function(){
 		if($(this).children("span").css("opacity") == 0.5){
 			$(this).children("span").animate({opacity: 0.9}, 100);
 		}
 	});
-	$(".thumb").bind("mouseout", function(){
+	$(".thumb").bind("mouseleave", function(){
 		$(this).children("span").animate({opacity: 0.5}, 100);
 	});
 });
