@@ -252,11 +252,21 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 						<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 						<script type="text/javascript" src="../%sjquery.js"></script>
 						<script type="text/javascript" src="../%ssingle.js"></script>
+						<script type="text/javascript">
+						$(document).ready(function(){
+							i = new Image();
+							i.src = "../pictures/%08d.jpg";
+							i = new Image();
+							i.src = "../thumbs/%08d.jpg";
+							i = new Image();
+							i.src = "../thumbs/%08d.jpg";
+						});
+						</script>
 						<link rel="stylesheet" href="../%ssingle.css" type="text/css" />
 					</head>
 
 					<body>
-						""" % (title, wayback, wayback, wayback)
+						""" % (title, wayback, wayback, j+1, j, j+2, wayback)
 		if j > 1:
 			html += ('<a href="%08d.html" class="thumb" id="prev"><img src="../thumbs/%08d.jpg" alt="" /><span>'+lang['prev']+'</span></a> ') % (j-1, j-1)
 		html += '<img src="../pictures/%08d.jpg" alt="" id="main" />' % j
