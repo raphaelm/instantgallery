@@ -16,7 +16,13 @@ from PIL import Image
 
 import EXIF
 
+if os.path.exists(LIBDIR):
+	print "Please adjust the setting LIBDIR in line 3 of instantgallery.py"
+	print "It is currently set to: %s" % LIBDIR
+
 VERSION = '1.3.7'
+
+# Language strings
 LNGLIST = ['en', 'de']
 langstrings = {
 	'de': {
@@ -96,9 +102,13 @@ langstrings = {
 		'download': 'Diesen Ordner herunterladen'
 	}
 }
+
+# Supported formats
 FORMATS = ("png", "PNG", "jpg", "JPG", "bmp", "BMP", "jpeg", "JPEG", "tif", "TIF", "tiff", "TIFF")
 
 def makegallery(options, sub = 0, inputd = False, outputd = False):
+	# main procedure, used recursively for subdirectories
+	
 	global langstrings, FORMATS
 	lang = langstrings[options.lang]
 	
@@ -122,15 +132,16 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 	if not os.path.exists(LIBDIR+'/single.css'):
 		raise ValueError("%s does not exist" % LIBDIR)
 			
-	if sub == 0:
+	if sub == 0: # Copy static files
 		shutil.copy(LIBDIR+'/single.css', outputd+'single.css')
 		shutil.copy(LIBDIR+'/index.css', outputd+'index.css')
 		shutil.copy(LIBDIR+'/jquery.js', outputd+'jquery.js')
 		shutil.copy(LIBDIR+'/single.js', outputd+'single.js')
 		shutil.copy(LIBDIR+'/index.js', outputd+'index.js')
 		shutil.copy(LIBDIR+'/loading.gif', outputd+'loading.gif')
-		shutil.copy(LIBDIR+'/Ubuntu.woff', outputd+'Ubuntu.woff')
-			
+		if os.path.exists(LIBDIR+'/Ubuntu.woff'):
+			shutil.copy(LIBDIR+'/Ubuntu.woff', outputd+'Ubuntu.woff')
+				
 	wayback = "../"*sub
 			
 	# Directory creation
@@ -140,11 +151,13 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 	pagedir = outputd+"picpages/"
 	
 	title = options.title
-	if sub > 0:
+	
+	if sub > 0: # Set the hierarchical title for subdirectories
 		n = outputd.replace(options.output, "")
 		if n.endswith("/"): n = n[:-1]
 		title += " "+n.replace("/", " / ")
 	
+	# Deleting old tuff in the selected directories
 	if (os.path.exists(thumbdir) or os.path.exists(picdir) or os.path.exists(pagedir)) and not options.s:
 		print "Content of the following directories will be deleted:"
 		print thumbdir
@@ -164,6 +177,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			print "Abort"
 			sys.exit(0)
 		
+	# Create the directories we need if they do not exist
 	if not os.path.exists(thumbdir):
 		try:
 			os.mkdir(thumbdir)
@@ -187,35 +201,42 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 	dwithtimes = []
 	dirs = []
 	i = 0
-	for f in d:
+	
+	for f in d: # First round: All files in the input directory
 		i += 1
 		fname = inputd+f
 		sys.stdout.write("[0] Reading file %04d of %04d (%02d%%)       \r" % (i, len(d), i*100/len(d)))
 		sys.stdout.flush()
 		
 		if os.path.isdir(fname) and sub < options.sub:
-			# Subdirectory
+			# handle a subdirectory
 			print "Entering directory %s" % fname
 			subdir = makegallery(options, sub+1, fname, outputd+f)
 			if (subdir[1]+subdir[2]) > 0:
-				dirs.append((f, subdir[0], subdir[1]))
+				dirs.append((f, subdir[0], subdir[1], subdir[3]))
 						
 		elif fname.endswith(FORMATS):
+			# handle a picture
 			try:
-				if fname.endswith(("jpeg", "JPEG", "jpg", "JPG")):
+				if fname.endswith(("jpeg", "JPEG", "jpg", "JPG")): # supporting EXIF?
+					# try to get EXIF orientation and EXIF date
 					e = open(fname)
 					tags = EXIF.process_file(e, details=False)
 					e.close()
 					ts = time.strptime(str(tags['EXIF DateTimeOriginal']), "%Y:%m:%d %H:%M:%S")
 					o = str(tags['Image Orientation'])
 				else:
+					# not a jpeg: set date to files mtime and the orientation to unknown
 					ts = time.localtime(os.path.getmtime(fname))
 					o = False
 			except:
+				# fallback: set date to files mtime and the orientation to unknown
 				ts = time.localtime(os.path.getmtime(fname))
 				o = False
-			if ts > 0: new = ts
+			# 
+			if ts > new: new = ts
 			
+			# Use a hash of the image for the final filename
 			e = open(fname)
 			m = hashlib.md5()
 			m.update(e.read(4096))
@@ -225,15 +246,16 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				m.update(e.read())
 			ha = m.hexdigest()
 			e.close()
+			
 			dwithtimes.append((f, ts, o, ha))
 			
 	if options.sort:
-		d = sorted(dwithtimes, key=lambda f: f[1])
+		d = sorted(dwithtimes, key=lambda f: f[1]) # Sort by date
 	else:
-		d = sorted(dwithtimes, key=lambda f: f[0])
+		d = sorted(dwithtimes, key=lambda f: f[0]) # Sort by filename
 		
 	i = 0
-	for f in d:
+	for f in d: # Second round. Again all files but only handling images.
 		i += 1
 		fname = inputd+f[0]
 		
@@ -243,9 +265,21 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			fnames.append(fname)
 			if options.s:
 				continue
-						
-			im = Image.open(fname)			
+			
+			# Use the Python imaging library for the big images, because we
+			# need to open them anyways and it is faster if we use the PIL
+			# also for scaling			
+			im = Image.open(fname)		
+			
+			# Use imagemagick's convert for creating the thumbnails because
+			# it would be a pain in the ass to implement thumbnails in PIL
+			# which are cropped to a square.
 			cmdline = ["convert", fname, "-thumbnail", "100x100^", "-gravity", "center", "-extent", "100x100", "-quality", "80"]
+			
+			# Do we need to rotate the image? We do it only if the rotation
+			# is noted in EXIF and the width is higher than the height (this
+			# prevents from rotating a picture wich is already rotated by
+			# another software without having the EXIF data changed).	
 			if options.autorotate and f[2] == 'Rotated 90 CW' and im.size[0] > im.size[1]:
 				im = im.rotate(-90)
 				cmdline.append("-rotate")
@@ -254,23 +288,29 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				im = im.rotate(90)
 				cmdline.append("-rotate")
 				cmdline.append("-90")
+			
+			# Save the new pictures in the corresponding directories with
+			# their hashes as filename.
 			cmdline.append("%s%s.jpg" % (thumbdir, f[3]))
 			subprocess.Popen(cmdline).wait()
 				
 			im.thumbnail((1920,1080), Image.ANTIALIAS)
 			im.save("%s%s.jpg" % (picdir, f[3]))
-			del im
+			del im # Free some RAM
 			
 	# html generation
-	for j in xrange(1, i):
+	for j in xrange(1, i+1): # Third round, this time images only!
 		sys.stdout.write("[2] Processing picture %04d of %04d (%02d%%)         \r" % (j, i, j*100/i))
 		sys.stdout.flush()
 		
-		if j < i-2:
+		# We only need to (try to) preload the next photos with JavaScriot
+		# if we aren't already at the end!
+		if j < i-1:
 			rep = (title, wayback, wayback, d[j][3], d[j-1][3], d[j+1][3], wayback)
 		else:
 			rep = (title, wayback, wayback, None, None, None, wayback)
 			
+		# HTML heder
 		html = """<!DOCTYPE html>
 					<html>
 					<head>
@@ -293,15 +333,18 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 
 					<body>
 						""" % rep
-		if j > 1:
+		if j > 1: # "previous" link
 			html += ('<a href="%s.html" class="thumb" id="prev"><img src="../thumbs/%s.jpg" alt="" /><span>'+lang['prev']+'</span></a> ') % (d[j-2][3], d[j-2][3])
-		html += '<img src="../pictures/%s.jpg" alt="" id="main" />' % d[j-1][3]
-		if j < i-1:
+		html += '<img src="../pictures/%s.jpg" alt="" id="main" />' % d[j-1][3] # the picture itself
+		if j < i: # "next" link
 			html += (' <a href="%s.html" class="thumb" id="next"><img src="../thumbs/%s.jpg" alt="" /><span>'+lang['next']+'</span></a>') % (d[j][3], d[j][3])
 			
-		html += "<br /><a href='../index.html' id='back'>"+lang["back"]+"</a>"
+		html += "<br /><a href='../index.html' id='back'>"+lang["back"]+"</a>" # the link back to the index
+		
 		fname = fnames[j-1]
 		if fname.endswith(("jpeg", "JPEG", "jpg", "JPG")) and options.exif:
+			# We wanna display some EXIF data because that rocks!
+			
 			# We could use the data parsed already but we do not want to
 			# keep all the tags of all photos in RAM when using the script
 			# for large galleries
@@ -310,14 +353,18 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			e.close()
 			taghtml = []
 			
+			# Check if we want to parse GPS and if we have GPS data
 			gps = (options.gps and ('GPS GPSLatitude' in tags))
 			if gps:
 				html += "<div class='exif'>"
 			else:
 				html += "<div class='exif exifsmall'>"
+				
 			html += "<table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
 			
+			# Parse the EXIF tags
 			if 'EXIF DateTimeOriginal' in tags:
+				# Date. We want it in the prefered notation of our locale.
 				tv = str(tags['EXIF DateTimeOriginal'])
 				if tv != '0000:00:00 00:00:00':
 					dt = time.strptime(tv, "%Y:%m:%d %H:%M:%S")
@@ -325,6 +372,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			if 'EXIF ExposureTime' in tags:
 				tv = tags['EXIF ExposureTime']
 				if tv.values[0].den == 2 or tv.values[0].den == 5:
+					# We want 3.5 instead of 7/2 but 1/60 instead of 0,0167
 					tv = float(tv.values[0].num)/float(tv.values[0].den)
 				taghtml.append(lang['exptime'] % tv)
 			if 'EXIF FNumber' in tags:
@@ -335,6 +383,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			if 'EXIF Flash' in tags:
 				fl = str(tags['EXIF Flash'])
 				if fl in lang['flash']:
+					# We translate the values :-)
 					taghtml.append(lang['flashfield'] % lang['flash'][fl])
 			if 'EXIF ISOSpeedRatings' in tags:
 				taghtml.append(lang['iso'] % tags['EXIF ISOSpeedRatings'])
@@ -346,6 +395,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			if 'EXIF MeteringMode' in tags:
 				taghtml.append(lang['metering'] % tags['EXIF MeteringMode'])
 			if 'EXIF ExifImageLength' in tags:
+				# We want to show the number of megapixels instead of the exact width and height
 				mp = int(str(tags['EXIF ExifImageLength']))*int(str(tags['EXIF ExifImageWidth']))/1000000
 				taghtml.append(lang['res'] % mp)
 			if 'Image Make' in tags and 'Image Model' in tags:
@@ -354,6 +404,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			html += "</tr><tr>".join(taghtml)
 				
 			if gps:
+				# Now parse the GPS stuff
 				lat = [float(x.num/x.den) for x in tags['GPS GPSLatitude'].values]
 				latr = str(tags['GPS GPSLatitudeRef'].values)
 				lon = [float(x.num/x.den) for x in tags['GPS GPSLongitude'].values]
@@ -364,7 +415,8 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				if latr == 'S': lat = lat * (-1)
 				if lonr == 'W': lon = lon * (-1)
 				
-				ex = 0.01
+				# Display openstreetmap map
+				ex = 0.01 # degrees we want to show around in each direction
 				html += '</tr><tr><td colspan="2" style="text-align: center">'
 				html += '<iframe frameborder="0" height="350" marginheight="0" marginwidth="0" scrolling="no" src="http://www.openstreetmap.org/export/embed.html?bbox=%s,%s,%s,%s&amp;layer=mapnik&amp;marker=%s,%s" style="border: 1px solid black" width="440" id="map"></iframe><br />' % (lon-ex, lat-ex, lon+ex, lat+ex, lat, lon)
 				html += '<small><a href="http://www.openstreetmap.org/?lat=%s&amp;lon=%s&amp;zoom=15" target="_blank">Gr&ouml;&szlig;ere Karte anzeigen</a></small></td>' % (lat, lon)
@@ -372,11 +424,12 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			html += "</tr></table></div>"
 				
 		html += "</body></html>"
+		# save the HTML file
 		f = open("%s%s.html" % (pagedir, d[j-1][3]), "w")
 		f.write(html)
 		f.close()
 		
-	# zipfile
+	# Generate a zip file
 	if options.zip:
 		sys.stdout.write("[4] Generating ZIP file                       \r")
 		z = zipfile.ZipFile("%sphotos.zip" % (picdir,), "w")
@@ -384,10 +437,11 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			z.write("%s%s.jpg" % (picdir, d[j-1][3]), "%04d-%s.jpg" % (j, d[j-1][3]))
 		z.close()
 		
-	# index page
+	# Generate the index page
 	sys.stdout.write("[3] Generating index                       \r")
 	sys.stdout.flush()
 		
+	# HTML head
 	html = ("""<!DOCTYPE html>
 				<html>
 				<head>
@@ -399,6 +453,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				</head>
 
 				<body><h1>%s""") % (title, wayback, wayback, wayback, title)
+	# display links to go a directory up
 	if sub == 1:
 		html += "   <small><a href='../index.html'>"+lang['up']+"</a>"
 		if options.zip:
@@ -410,6 +465,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 	elif options.zip:
 		html += "   <small>"
 		
+	# display zip download links
 	if options.zip:
 		html += "<a href='pictures/photos.zip'>"+lang['download']+'</a>'
 		
@@ -417,6 +473,8 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		html += "</small>"
 	html += "</h1>"
 	
+	# if -i is specified and there is a file INTRO in the photo directory
+	# we want to show it! :-)
 	if options.intro:
 		introfile = inputd+"/INTRO"
 		if os.path.exists(introfile) and os.path.isfile(introfile):
@@ -427,28 +485,34 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		
 	if len(dirs) > 0:
 		if options.sort:
-			dirs = sorted(dirs, key=lambda f: f[1])
+			dirs = sorted(dirs, key=lambda f: f[1]) # by date
 		else:
-			dirs = sorted(dirs, key=lambda f: f[0])
+			dirs = sorted(dirs, key=lambda f: f[0]) # by directory name
 			
-		for directory in dirs:
+		for directory in dirs: # output ALL the directories
 			html += '<a href="%s/index.html" class="thumb dir' % directory[0]
 			html += '" rel="%d"><img rel="%s" src="%s/thumbs/%s.jpg" alt="" />' % (directory[2],directory[0],directory[0],directory[3])
 			html += '<span>'+directory[0]+'<br />'+(lang["number"] % directory[2])+'</span>'
 			html += '</a> '
 			
-	for j in xrange(1, i):
+	for j in xrange(1, i+1): # output ALL the files
 		html += '<a href="picpages/%s.html" class="thumb"><img src="thumbs/%s.jpg" alt="" />' % (d[j-1][3],d[j-1][3])
 		if options.displaydate:
 			html += '<span>'+time.strftime(lang['2ldatetime'], d[j-1][1])+'</span>'
 		html += '</a> '
 		
+	# promote this software
 	html += ("<div class='poweredby'>"+lang['powered']+"</div>") % (datetime.date.today().strftime("%d.%m.%Y"), VERSION)
 	html += "</body></html>"
 	f = open("%sindex.html" % (htmldir), "w")
 	f.write(html)
-	f.close()
-	return (new, i-1, len(dirs), d[0][3])
+	f.close() # have fun
+	
+	if len(d) > 0:
+		first = d[0][3]
+	else:
+		first = None
+	return (new, i-1, len(dirs), first)
 	
 # parse arguments		
 parser = argparse.ArgumentParser(description='Makes a gallery. Now.')
