@@ -352,76 +352,76 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			tags = EXIF.process_file(e, details=False)
 			e.close()
 			taghtml = []
-			
-			# Check if we want to parse GPS and if we have GPS data
-			gps = (options.gps and ('GPS GPSLatitude' in tags))
-			if gps:
-				html += "<div class='exif'>"
-			else:
-				html += "<div class='exif exifsmall'>"
+			if len(tags) > 2: # do we HAVE tags?
+				# Check if we want to parse GPS and if we have GPS data
+				gps = (options.gps and ('GPS GPSLatitude' in tags))
+				if gps:
+					html += "<div class='exif'>"
+				else:
+					html += "<div class='exif exifsmall'>"
+					
+				html += "<table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
 				
-			html += "<table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
-			
-			# Parse the EXIF tags
-			if 'EXIF DateTimeOriginal' in tags:
-				# Date. We want it in the prefered notation of our locale.
-				tv = str(tags['EXIF DateTimeOriginal'])
-				if tv != '0000:00:00 00:00:00':
-					dt = time.strptime(tv, "%Y:%m:%d %H:%M:%S")
-					taghtml.append(lang['taken'] % time.strftime(lang['datetime'], dt))
-			if 'EXIF ExposureTime' in tags:
-				tv = tags['EXIF ExposureTime']
-				if tv.values[0].den == 2 or tv.values[0].den == 5:
-					# We want 3.5 instead of 7/2 but 1/60 instead of 0,0167
-					tv = float(tv.values[0].num)/float(tv.values[0].den)
-				taghtml.append(lang['exptime'] % tv)
-			if 'EXIF FNumber' in tags:
-				tv = tags['EXIF FNumber']
-				if tv.values[0].den == 2 or tv.values[0].den == 5:
-					tv = float(tv.values[0].num)/float(tv.values[0].den)
-				taghtml.append(lang['fnumber'] % tv)
-			if 'EXIF Flash' in tags:
-				fl = str(tags['EXIF Flash'])
-				if fl in lang['flash']:
-					# We translate the values :-)
-					taghtml.append(lang['flashfield'] % lang['flash'][fl])
-			if 'EXIF ISOSpeedRatings' in tags:
-				taghtml.append(lang['iso'] % tags['EXIF ISOSpeedRatings'])
-			if 'EXIF FocalLength' in tags:
-				tv = tags['EXIF FocalLength']
-				if tv.values[0].den == 2 or tv.values[0].den == 5:
-					tv = float(tv.values[0].num)/float(tv.values[0].den)
-				taghtml.append(lang['focallength'] % tv)
-			if 'EXIF MeteringMode' in tags:
-				taghtml.append(lang['metering'] % tags['EXIF MeteringMode'])
-			if 'EXIF ExifImageLength' in tags:
-				# We want to show the number of megapixels instead of the exact width and height
-				mp = int(str(tags['EXIF ExifImageLength']))*int(str(tags['EXIF ExifImageWidth']))/1000000
-				taghtml.append(lang['res'] % mp)
-			if 'Image Make' in tags and 'Image Model' in tags:
-				taghtml.append(lang['camera'] % (tags['Image Make'], tags['Image Model']))
-								
-			html += "</tr><tr>".join(taghtml)
+				# Parse the EXIF tags
+				if 'EXIF DateTimeOriginal' in tags:
+					# Date. We want it in the prefered notation of our locale.
+					tv = str(tags['EXIF DateTimeOriginal'])
+					if tv != '0000:00:00 00:00:00':
+						dt = time.strptime(tv, "%Y:%m:%d %H:%M:%S")
+						taghtml.append(lang['taken'] % time.strftime(lang['datetime'], dt))
+				if 'EXIF ExposureTime' in tags:
+					tv = tags['EXIF ExposureTime']
+					if tv.values[0].den == 2 or tv.values[0].den == 5:
+						# We want 3.5 instead of 7/2 but 1/60 instead of 0,0167
+						tv = float(tv.values[0].num)/float(tv.values[0].den)
+					taghtml.append(lang['exptime'] % tv)
+				if 'EXIF FNumber' in tags:
+					tv = tags['EXIF FNumber']
+					if tv.values[0].den == 2 or tv.values[0].den == 5:
+						tv = float(tv.values[0].num)/float(tv.values[0].den)
+					taghtml.append(lang['fnumber'] % tv)
+				if 'EXIF Flash' in tags:
+					fl = str(tags['EXIF Flash'])
+					if fl in lang['flash']:
+						# We translate the values :-)
+						taghtml.append(lang['flashfield'] % lang['flash'][fl])
+				if 'EXIF ISOSpeedRatings' in tags:
+					taghtml.append(lang['iso'] % tags['EXIF ISOSpeedRatings'])
+				if 'EXIF FocalLength' in tags:
+					tv = tags['EXIF FocalLength']
+					if tv.values[0].den == 2 or tv.values[0].den == 5:
+						tv = float(tv.values[0].num)/float(tv.values[0].den)
+					taghtml.append(lang['focallength'] % tv)
+				if 'EXIF MeteringMode' in tags:
+					taghtml.append(lang['metering'] % tags['EXIF MeteringMode'])
+				if 'EXIF ExifImageLength' in tags:
+					# We want to show the number of megapixels instead of the exact width and height
+					mp = int(str(tags['EXIF ExifImageLength']))*int(str(tags['EXIF ExifImageWidth']))/1000000
+					taghtml.append(lang['res'] % mp)
+				if 'Image Make' in tags and 'Image Model' in tags:
+					taghtml.append(lang['camera'] % (tags['Image Make'], tags['Image Model']))
+									
+				html += "</tr><tr>".join(taghtml)
+					
+				if gps:
+					# Now parse the GPS stuff
+					lat = [float(x.num/x.den) for x in tags['GPS GPSLatitude'].values]
+					latr = str(tags['GPS GPSLatitudeRef'].values)
+					lon = [float(x.num/x.den) for x in tags['GPS GPSLongitude'].values]
+					lonr = str(tags['GPS GPSLongitudeRef'].values)
+					
+					lat = (lat[2]/60.0 + lat[1])/60.0 + lat[0]
+					lon = (lon[2]/60.0 + lon[1])/60.0 + lon[0]
+					if latr == 'S': lat = lat * (-1)
+					if lonr == 'W': lon = lon * (-1)
+					
+					# Display openstreetmap map
+					ex = 0.01 # degrees we want to show around in each direction
+					html += '</tr><tr><td colspan="2" style="text-align: center">'
+					html += '<iframe frameborder="0" height="350" marginheight="0" marginwidth="0" scrolling="no" src="http://www.openstreetmap.org/export/embed.html?bbox=%s,%s,%s,%s&amp;layer=mapnik&amp;marker=%s,%s" style="border: 1px solid black" width="440" id="map"></iframe><br />' % (lon-ex, lat-ex, lon+ex, lat+ex, lat, lon)
+					html += '<small><a href="http://www.openstreetmap.org/?lat=%s&amp;lon=%s&amp;zoom=15" target="_blank">Gr&ouml;&szlig;ere Karte anzeigen</a></small></td>' % (lat, lon)
 				
-			if gps:
-				# Now parse the GPS stuff
-				lat = [float(x.num/x.den) for x in tags['GPS GPSLatitude'].values]
-				latr = str(tags['GPS GPSLatitudeRef'].values)
-				lon = [float(x.num/x.den) for x in tags['GPS GPSLongitude'].values]
-				lonr = str(tags['GPS GPSLongitudeRef'].values)
-				
-				lat = (lat[2]/60.0 + lat[1])/60.0 + lat[0]
-				lon = (lon[2]/60.0 + lon[1])/60.0 + lon[0]
-				if latr == 'S': lat = lat * (-1)
-				if lonr == 'W': lon = lon * (-1)
-				
-				# Display openstreetmap map
-				ex = 0.01 # degrees we want to show around in each direction
-				html += '</tr><tr><td colspan="2" style="text-align: center">'
-				html += '<iframe frameborder="0" height="350" marginheight="0" marginwidth="0" scrolling="no" src="http://www.openstreetmap.org/export/embed.html?bbox=%s,%s,%s,%s&amp;layer=mapnik&amp;marker=%s,%s" style="border: 1px solid black" width="440" id="map"></iframe><br />' % (lon-ex, lat-ex, lon+ex, lat+ex, lat, lon)
-				html += '<small><a href="http://www.openstreetmap.org/?lat=%s&amp;lon=%s&amp;zoom=15" target="_blank">Gr&ouml;&szlig;ere Karte anzeigen</a></small></td>' % (lat, lon)
-			
-			html += "</tr></table></div>"
+				html += "</tr></table></div>"
 				
 		html += "</body></html>"
 		# save the HTML file
