@@ -15,7 +15,7 @@ from PIL import Image
 
 import EXIF
 
-VERSION = '1.2.0dev'
+VERSION = '1.3.5'
 LNGLIST = ['en', 'de']
 langstrings = {
 	'de': {
@@ -36,19 +36,19 @@ langstrings = {
 		'next': 'nächstes',
 		'prev': 'vorheriges',
 		'flash': {
-              'No' : 'kein Blitz',
-              'Fired' : 'ausgelöst',
-              'Fired (?)': 'ausgelöst (?)',
-              'Fired (!)': 'ausgelöst (!)',
-              'Fill Fired': 'Fill Fired',
-              'Fill Fired (?)': 'Fill Fired (?)',
-              'Fill Fired (!)': 'Fill Fired (!)',
-              'Off': 'aus',
-              'Auto Off': 'automatisch, aus',
-              'Auto Fired': 'automatisch, ausgelöst',
-              'Auto Fired (?)': 'automatisch, ausgelöst (?)',
-              'Auto Fired (!)': 'automatisch, ausgelöst (!)',
-              'Not Available': 'nicht verfügbar'
+			'No' : 'kein Blitz',
+			'Fired' : 'ausgelöst',
+			'Fired (?)': 'ausgelöst (?)',
+			'Fired (!)': 'ausgelöst (!)',
+			'Fill Fired': 'Fill Fired',
+			'Fill Fired (?)': 'Fill Fired (?)',
+			'Fill Fired (!)': 'Fill Fired (!)',
+			'Off': 'aus',
+			'Auto Off': 'automatisch, aus',
+			'Auto Fired': 'automatisch, ausgelöst',
+			'Auto Fired (?)': 'automatisch, ausgelöst (?)',
+			'Auto Fired (!)': 'automatisch, ausgelöst (!)',
+			'Not Available': 'nicht verfügbar'
 		},
 		'up': 'eine Ebene zurück',
 		'top': 'oberste Ebene',
@@ -75,19 +75,19 @@ langstrings = {
 		'next': 'next',
 		'prev': 'previous',
 		'flash': {
-              'No' : 'No',
-              'Fired' : 'Fired',
-              'Fired (?)': 'Fired (?)',
-              'Fired (!)': 'Fired (!)',
-              'Fill Fired': 'Fill Fired',
-              'Fill Fired (?)': 'Fill Fired (?)',
-              'Fill Fired (!)': 'Fill Fired (!)',
-              'Off': 'Off',
-              'Auto Off': 'Auto Off',
-              'Auto Fired': 'Auto Fired',
-              'Auto Fired (?)': 'Auto Fired (?)',
-              'Auto Fired (!)': 'Auto Fired (!)',
-              'Not Available': 'Not Available'
+			'No' : 'No',
+			'Fired' : 'Fired',
+			'Fired (?)': 'Fired (?)',
+			'Fired (!)': 'Fired (!)',
+			'Fill Fired': 'Fill Fired',
+			'Fill Fired (?)': 'Fill Fired (?)',
+			'Fill Fired (!)': 'Fill Fired (!)',
+			'Off': 'Off',
+			'Auto Off': 'Auto Off',
+			'Auto Fired': 'Auto Fired',
+			'Auto Fired (?)': 'Auto Fired (?)',
+			'Auto Fired (!)': 'Auto Fired (!)',
+			'Not Available': 'Not Available'
 		},
 		'up': 'up',
 		'top': 'top',
@@ -354,9 +354,9 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 	# zipfile
 	if options.zip:
 		sys.stdout.write("[4] Generating ZIP file                       \r")
-		z = zipfile.ZipFile("%sdirectory.zip" % (picdir,), "w")
+		z = zipfile.ZipFile("%sphotos.zip" % (picdir,), "w")
 		for j in xrange(1, i):
-			z.write("%s%08d.jpg" % (picdir, j))
+			z.write("%s%08d.jpg" % (picdir, j), "%08d.jpg" % (j,))
 		z.close()
 		
 	# index page
@@ -386,12 +386,20 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		html += "   <small>"
 		
 	if options.zip:
-		html += "<a href='pictures/directory.zip'>"+lang['download']+'</a>'
+		html += "<a href='pictures/photos.zip'>"+lang['download']+'</a>'
 		
 	if sub == 1 or sub > 1 or options.zip:
 		html += "</small>"
 	html += "</h1>"
 	
+	if options.intro:
+		introfile = inputd+"/INTRO"
+		if os.path.exists(introfile) and os.path.isfile(introfile):
+			introf = open(introfile)
+			intro = introf.read()
+			introf.close()
+			html += "<p>%s</p>" % intro.replace("\n\n", "</p><p>").replace("\n", "<br />")
+		
 	if len(dirs) > 0:
 		if options.sort:
 			dirs = sorted(dirs, key=lambda f: f[1])
@@ -445,6 +453,8 @@ parser.add_argument('--sub', '-S', type=int, dest='sub', default=63, metavar='N'
                    help='Subdirectory entering depth (0 for staying in the original directory).')
 parser.add_argument('--hoverscrolling', dest='hoverscrolling', action='store_true',
                    help='An effect for subdirectories. Was intended to look nicer than it acutally does.')
+parser.add_argument('--intro', '-i', dest='intro', action='store_true',
+                   help='Use text file INTRO in the picture directories to display on the index page')
 parser.add_argument('-y', action="store_true", dest='yes',
                    help='Say yes to everything.')
 parser.add_argument('-s', action="store_true",

@@ -61,3 +61,6 @@ img {
 .thumb.dir span {
 	opacity: 0.8;
 }
+p {
+	margin: 5px 0;
+}
