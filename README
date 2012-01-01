@@ -70,8 +70,7 @@ Requirements:
 
 usage: instantgallery.py [-h] [--title TITLE] [--language LNG] [--no-exif]
                          [--no-rotate] [--no-sort] [--no-date] [--no-gps]
-                         [--zip] [--sub N] [--hoverscrolling] [--intro] [-y]
-                         [-s]
+                         [--zip] [--sub N] [--intro] [-y] [-s]
                          INPUT OUTPUT
 
 Makes a gallery. Now.
@@ -100,8 +99,6 @@ optional arguments:
                         available for download.
   --sub N, -S N         Subdirectory entering depth (0 for staying in the
                         original directory).
-  --hoverscrolling      An effect for subdirectories. Was intended to look
-                        nicer than it acutally does.
   --intro, -i           Use text file INTRO in the picture directories to
                         display on the index page
   -y                    Say yes to everything.

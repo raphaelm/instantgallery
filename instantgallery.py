@@ -10,12 +10,13 @@ import shutil
 import subprocess
 import datetime, time
 import zipfile
+import hashlib
 
 from PIL import Image
 
 import EXIF
 
-VERSION = '1.3.5'
+VERSION = '1.3.7'
 LNGLIST = ['en', 'de']
 langstrings = {
 	'de': {
@@ -181,50 +182,66 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			
 	# Picture scanning and resizing
 	new = 0
-	fnames = [None]
+	fnames = []
 	d = os.listdir(inputd)
 	dwithtimes = []
 	dirs = []
-	if options.sort:
-		for f in d:
-			fname = inputd+f
-			
-			if os.path.isdir(fname) and sub < options.sub:
-				# Subdirectory
-				print "Entering directory %s" % fname
-				subdir = makegallery(options, sub+1, fname, outputd+f)
-				if (subdir[1]+subdir[2]) > 0:
-					dirs.append((f, subdir[0], subdir[1]))
-							
-			elif fname.endswith(FORMATS):
-				try:
-					if fname.endswith(("jpeg", "JPEG", "jpg", "JPG")):
-						e = open(fname)
-						tags = EXIF.process_file(e, details=False)
-						e.close()
-						ts = time.strptime(str(tags['EXIF DateTimeOriginal']), "%Y:%m:%d %H:%M:%S")
-						o = str(tags['Image Orientation'])
-					else:
-						ts = time.localtime(os.path.getmtime(fname))
-						o = False
-				except:
+	i = 0
+	for f in d:
+		i += 1
+		fname = inputd+f
+		sys.stdout.write("[0] Reading file %04d of %04d (%02d%%)       \r" % (i, len(d), i*100/len(d)))
+		sys.stdout.flush()
+		
+		if os.path.isdir(fname) and sub < options.sub:
+			# Subdirectory
+			print "Entering directory %s" % fname
+			subdir = makegallery(options, sub+1, fname, outputd+f)
+			if (subdir[1]+subdir[2]) > 0:
+				dirs.append((f, subdir[0], subdir[1]))
+						
+		elif fname.endswith(FORMATS):
+			try:
+				if fname.endswith(("jpeg", "JPEG", "jpg", "JPG")):
+					e = open(fname)
+					tags = EXIF.process_file(e, details=False)
+					e.close()
+					ts = time.strptime(str(tags['EXIF DateTimeOriginal']), "%Y:%m:%d %H:%M:%S")
+					o = str(tags['Image Orientation'])
+				else:
 					ts = time.localtime(os.path.getmtime(fname))
 					o = False
-				if ts > 0: new = ts
-				dwithtimes.append((f, ts, o))
+			except:
+				ts = time.localtime(os.path.getmtime(fname))
+				o = False
+			if ts > 0: new = ts
+			
+			e = open(fname)
+			m = hashlib.md5()
+			m.update(e.read(4096))
+			# Try first 4096 bytes first. In case of two pictures with the
+			# same first 4096 bytes, use the full file.
+			if m.hexdigest() in [x[3] for x in dwithtimes]:
+				m.update(e.read())
+			ha = m.hexdigest()
+			e.close()
+			dwithtimes.append((f, ts, o, ha))
+			
+	if options.sort:
 		d = sorted(dwithtimes, key=lambda f: f[1])
 	else:
-		d.sort()
-			
-	i = 1
+		d = sorted(dwithtimes, key=lambda f: f[0])
+		
+	i = 0
 	for f in d:
+		i += 1
 		fname = inputd+f[0]
+		
 		sys.stdout.write("[1] Processing file %04d of %04d (%02d%%)       \r" % (i, len(d), i*100/len(d)))
 		sys.stdout.flush()
 		if fname.endswith(FORMATS):
 			fnames.append(fname)
 			if options.s:
-				i += 1
 				continue
 						
 			im = Image.open(fname)			
@@ -237,18 +254,23 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				im = im.rotate(90)
 				cmdline.append("-rotate")
 				cmdline.append("-90")
-			cmdline.append("%s%08d.jpg" % (thumbdir, i))
+			cmdline.append("%s%s.jpg" % (thumbdir, f[3]))
 			subprocess.Popen(cmdline).wait()
 				
 			im.thumbnail((1920,1080), Image.ANTIALIAS)
-			im.save("%s%08d.jpg" % (picdir, i))
+			im.save("%s%s.jpg" % (picdir, f[3]))
 			del im
-			i += 1
 			
 	# html generation
 	for j in xrange(1, i):
 		sys.stdout.write("[2] Processing picture %04d of %04d (%02d%%)         \r" % (j, i, j*100/i))
 		sys.stdout.flush()
+		
+		if j < i-2:
+			rep = (title, wayback, wayback, d[j][3], d[j-1][3], d[j+1][3], wayback)
+		else:
+			rep = (title, wayback, wayback, None, None, None, wayback)
+			
 		html = """<!DOCTYPE html>
 					<html>
 					<head>
@@ -259,27 +281,30 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 						<script type="text/javascript">
 						$(document).ready(function(){
 							i = new Image();
-							i.src = "../pictures/%08d.jpg";
+							i.src = "../pictures/%s.jpg";
 							i = new Image();
-							i.src = "../thumbs/%08d.jpg";
+							i.src = "../thumbs/%s.jpg";
 							i = new Image();
-							i.src = "../thumbs/%08d.jpg";
+							i.src = "../thumbs/%s.jpg";
 						});
 						</script>
 						<link rel="stylesheet" href="../%ssingle.css" type="text/css" />
 					</head>
 
 					<body>
-						""" % (title, wayback, wayback, j+1, j, j+2, wayback)
+						""" % rep
 		if j > 1:
-			html += ('<a href="%08d.html" class="thumb" id="prev"><img src="../thumbs/%08d.jpg" alt="" /><span>'+lang['prev']+'</span></a> ') % (j-1, j-1)
-		html += '<img src="../pictures/%08d.jpg" alt="" id="main" />' % j
+			html += ('<a href="%s.html" class="thumb" id="prev"><img src="../thumbs/%s.jpg" alt="" /><span>'+lang['prev']+'</span></a> ') % (d[j-2][3], d[j-2][3])
+		html += '<img src="../pictures/%s.jpg" alt="" id="main" />' % d[j-1][3]
 		if j < i-1:
-			html += (' <a href="%08d.html" class="thumb" id="next"><img src="../thumbs/%08d.jpg" alt="" /><span>'+lang['next']+'</span></a>') % (j+1, j+1)
+			html += (' <a href="%s.html" class="thumb" id="next"><img src="../thumbs/%s.jpg" alt="" /><span>'+lang['next']+'</span></a>') % (d[j][3], d[j][3])
 			
 		html += "<br /><a href='../index.html' id='back'>"+lang["back"]+"</a>"
-		fname = fnames[j]
+		fname = fnames[j-1]
 		if fname.endswith(("jpeg", "JPEG", "jpg", "JPG")) and options.exif:
+			# We could use the data parsed already but we do not want to
+			# keep all the tags of all photos in RAM when using the script
+			# for large galleries
 			e = open(fname)
 			tags = EXIF.process_file(e, details=False)
 			e.close()
@@ -347,16 +372,16 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			html += "</tr></table></div>"
 				
 		html += "</body></html>"
-		f = open("%s%08d.html" % (pagedir, j), "w")
+		f = open("%s%s.html" % (pagedir, d[j-1][3]), "w")
 		f.write(html)
 		f.close()
-	
+		
 	# zipfile
 	if options.zip:
 		sys.stdout.write("[4] Generating ZIP file                       \r")
 		z = zipfile.ZipFile("%sphotos.zip" % (picdir,), "w")
 		for j in xrange(1, i):
-			z.write("%s%08d.jpg" % (picdir, j), "%08d.jpg" % (j,))
+			z.write("%s%s.jpg" % (picdir, d[j-1][3]), "%04d-%s.jpg" % (j, d[j-1][3]))
 		z.close()
 		
 	# index page
@@ -408,14 +433,12 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			
 		for directory in dirs:
 			html += '<a href="%s/index.html" class="thumb dir' % directory[0]
-			if options.hoverscrolling:
-				html += ' anim'
-			html += '" rel="%d"><img rel="%s" src="%s/thumbs/00000001.jpg" alt="" />' % (directory[2],directory[0],directory[0])
+			html += '" rel="%d"><img rel="%s" src="%s/thumbs/%s.jpg" alt="" />' % (directory[2],directory[0],directory[0],directory[3])
 			html += '<span>'+directory[0]+'<br />'+(lang["number"] % directory[2])+'</span>'
 			html += '</a> '
 			
 	for j in xrange(1, i):
-		html += '<a href="picpages/%08d.html" class="thumb"><img src="thumbs/%08d.jpg" alt="" />' % (j,j)
+		html += '<a href="picpages/%s.html" class="thumb"><img src="thumbs/%s.jpg" alt="" />' % (d[j-1][3],d[j-1][3])
 		if options.displaydate:
 			html += '<span>'+time.strftime(lang['2ldatetime'], d[j-1][1])+'</span>'
 		html += '</a> '
@@ -425,7 +448,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 	f = open("%sindex.html" % (htmldir), "w")
 	f.write(html)
 	f.close()
-	return (new, i-1, len(dirs))
+	return (new, i-1, len(dirs), d[0][3])
 	
 # parse arguments		
 parser = argparse.ArgumentParser(description='Makes a gallery. Now.')
@@ -451,8 +474,6 @@ parser.add_argument('--zip', '-z', action="store_true", dest='zip',
                    help='Create a zip file with all the images and make it available for download.')
 parser.add_argument('--sub', '-S', type=int, dest='sub', default=63, metavar='N',
                    help='Subdirectory entering depth (0 for staying in the original directory).')
-parser.add_argument('--hoverscrolling', dest='hoverscrolling', action='store_true',
-                   help='An effect for subdirectories. Was intended to look nicer than it acutally does.')
 parser.add_argument('--intro', '-i', dest='intro', action='store_true',
                    help='Use text file INTRO in the picture directories to display on the index page')
 parser.add_argument('-y', action="store_true", dest='yes',

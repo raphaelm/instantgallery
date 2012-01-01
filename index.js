@@ -15,16 +15,6 @@ $(document).ready(function(){
 	$(".thumb.dir").bind("mouseleave", function(){
 		$(this).children("span").animate({opacity: 0.8}, 100);
 	});
-	$(".thumb.dir.anim").bind("mousemove", function(event){
-		N = $(this).attr("rel")
-		MAX = 10
-		if(N > MAX){
-			i = parseInt((parseInt(event.offsetX/(100 / MAX))*(N/MAX))+1)
-		}else{
-			i = parseInt((event.offsetX/(100 / parseInt(N)))+1)
-		}
-		$(this).children("img").attr("src", $(this).children("img").attr("rel")+"/thumbs/"+pad(i,8)+".jpg");
-	});
 });
 
 function pad(number, length) {
