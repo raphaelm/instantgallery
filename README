@@ -70,7 +70,7 @@ Requirements:
 
 usage: instantgallery.py [-h] [--title TITLE] [--language LNG] [--no-exif]
                          [--no-rotate] [--no-sort] [--no-date] [--no-gps]
-                         [--sub N] [--hoverscrolling] [-y] [-s]
+                         [--zip] [--sub N] [--hoverscrolling] [-y] [-s]
                          INPUT OUTPUT
 
 Makes a gallery. Now.
@@ -95,6 +95,8 @@ optional arguments:
                         time of the picutres on the index page.
   --no-gps, -g          Don't display GPS data (does only make sense if EXIF
                         is displayed).
+  --zip, -z             Create a zip file with all the images and make it
+                        available for download.
   --sub N, -S N         Subdirectory entering depth (0 for staying in the
                         original directory).
   --hoverscrolling      An effect for subdirectories. Was intended to look
@@ -102,4 +104,3 @@ optional arguments:
   -y                    Say yes to everything.
   -s                    Skips the generation of thumbnails and similar things.
                         Use this only if you're aware of what you're doing.
-

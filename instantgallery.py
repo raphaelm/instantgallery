@@ -9,6 +9,7 @@ import argparse # Python 2.7!!
 import shutil
 import subprocess
 import datetime, time
+import zipfile
 
 from PIL import Image
 
@@ -51,7 +52,8 @@ langstrings = {
 		},
 		'up': 'eine Ebene zurück',
 		'top': 'oberste Ebene',
-		'number': '%d Bilder'
+		'number': '%d Bilder',
+		'download': 'Diesen Ordner herunterladen'
 	},
 	'en': {
 		'stats': '%d pictures &middot; generated %s',
@@ -89,7 +91,8 @@ langstrings = {
 		},
 		'up': 'up',
 		'top': 'top',
-		'number': '%d pictures'
+		'number': '%d pictures',
+		'download': 'Diesen Ordner herunterladen'
 	}
 }
 FORMATS = ("png", "PNG", "jpg", "JPG", "bmp", "BMP", "jpeg", "JPEG", "tif", "TIF", "tiff", "TIFF")
@@ -348,10 +351,18 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		f.write(html)
 		f.close()
 	
+	# zipfile
+	if options.zip:
+		sys.stdout.write("[4] Generating ZIP file                       \r")
+		z = zipfile.ZipFile("%sdirectory.zip" % (picdir,), "w")
+		for j in xrange(1, i):
+			z.write("%s%08d.jpg" % (picdir, j))
+		z.close()
+		
 	# index page
 	sys.stdout.write("[3] Generating index                       \r")
 	sys.stdout.flush()
-	
+		
 	html = ("""<!DOCTYPE html>
 				<html>
 				<head>
@@ -364,9 +375,21 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 
 				<body><h1>%s""") % (title, wayback, wayback, wayback, title)
 	if sub == 1:
-		html += "   <small><a href='../index.html'>"+lang['up']+"</a></small>"
+		html += "   <small><a href='../index.html'>"+lang['up']+"</a>"
+		if options.zip:
+			html += " &middot; "
 	elif sub > 1:
-		html += "   <small><a href='../index.html'>"+lang['up']+"</a> &middot; <a href='"+wayback+"index.html'>"+lang['top']+'</a></small>'
+		html += "   <small><a href='../index.html'>"+lang['up']+"</a> &middot; <a href='"+wayback+"index.html'>"+lang['top']+'</a>'
+		if options.zip:
+			html += " &middot; "
+	elif options.zip:
+		html += "   <small>"
+		
+	if options.zip:
+		html += "<a href='pictures/directory.zip'>"+lang['download']+'</a>'
+		
+	if sub == 1 or sub > 1 or options.zip:
+		html += "</small>"
 	html += "</h1>"
 	
 	if len(dirs) > 0:
@@ -416,6 +439,8 @@ parser.add_argument('--no-date', '-d', action="store_false", dest='displaydate',
                    help='Prevents instantgallery.py from showing the date and time of the picutres on the index page.')
 parser.add_argument('--no-gps', '-g', action="store_false", dest='gps',
                    help='Don\'t display GPS data (does only make sense if EXIF is displayed).')
+parser.add_argument('--zip', '-z', action="store_true", dest='zip',
+                   help='Create a zip file with all the images and make it available for download.')
 parser.add_argument('--sub', '-S', type=int, dest='sub', default=63, metavar='N',
                    help='Subdirectory entering depth (0 for staying in the original directory).')
 parser.add_argument('--hoverscrolling', dest='hoverscrolling', action='store_true',
