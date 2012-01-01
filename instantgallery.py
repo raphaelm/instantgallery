@@ -125,6 +125,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		shutil.copy(LIBDIR+'/single.js', outputd+'single.js')
 		shutil.copy(LIBDIR+'/index.js', outputd+'index.js')
 		shutil.copy(LIBDIR+'/loading.gif', outputd+'loading.gif')
+		shutil.copy(LIBDIR+'/Ubuntu.woff', outputd+'Ubuntu.woff')
 			
 	wayback = "../"*sub
 			

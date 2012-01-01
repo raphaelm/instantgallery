@@ -1,4 +1,9 @@
-@import url(http://fonts.googleapis.com/css?family=Ubuntu);
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Ubuntu'), url('Ubuntu.woff') format('woff');
+}
 body {
 	background: black;
 	text-align: center;
