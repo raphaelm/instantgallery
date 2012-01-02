@@ -54,7 +54,7 @@ Example:
 
 		1 directory, 21 files
 
-	$ ./instantgallery.py /tmp/demo /tmp/capitals --title "Capitals" -i
+	$ ./instantgallery.py /tmp/demo /tmp/capitals --title "Capitals" -i -z
 	
 	Result: http://www.raphaelmichel.de/bilder/demo/
 
