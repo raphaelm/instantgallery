@@ -16,7 +16,7 @@ from PIL import Image
 
 import EXIF
 
-if os.path.exists(LIBDIR):
+if not os.path.exists(LIBDIR):
 	print "Please adjust the setting LIBDIR in line 3 of instantgallery.py"
 	print "It is currently set to: %s" % LIBDIR
 
@@ -96,10 +96,10 @@ langstrings = {
 			'Auto Fired (!)': 'Auto Fired (!)',
 			'Not Available': 'Not Available'
 		},
-		'up': 'up',
-		'top': 'top',
+		'up': 'go up',
+		'top': 'go to the top',
 		'number': '%d pictures',
-		'download': 'Diesen Ordner herunterladen'
+		'download': 'Download this folder'
 	}
 }
 
