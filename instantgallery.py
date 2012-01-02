@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-LIBDIR = '/home/raphael/proj/instantgallery'
+LIBDIR = '/home/raphael/proj/instantgallery/static'
 
 import os
 import sys
