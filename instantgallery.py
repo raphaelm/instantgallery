@@ -512,7 +512,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		first = d[0][3]
 	else:
 		first = None
-	return (new, i-1, len(dirs), first)
+	return (new, i, len(dirs), first)
 	
 # parse arguments		
 parser = argparse.ArgumentParser(description='Makes a gallery. Now.')
