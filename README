@@ -15,14 +15,48 @@ can specify a flag to have them sorted chronologically: instantgallery.py then
 tries to read there EXIF "OriginalDate" field first and uses Unix' mtime() if
 it failes.
 
+For an example see below.
+
 instantgallery.py is able to generate galleries in other languages than
 English, currently only German is supported. If you add another language
 I would be glad to get an email (<raphael@geeksfactory.de>) or just fork
 the project on github (<https://github.com/raphaelm/instantgallery>).
 
-Output example (German): http://www.raphaelmichel.de/bilder/capitals/
-
 Please report bugs to <raphael@geeksfactory.de>
+
+=======================================================================================
+Example:
+
+	$ tree /tmp/demo
+		/tmp/demo
+		├── GPS demo
+		│   ├── Paris1.JPG
+		│   ├── Paris2.JPG
+		│   ├── Paris3.JPG
+		│   ├── Paris4.JPG
+		│   └── Paris5.JPG
+		├── INTRO
+		├── London1.JPG
+		├── London2.JPG
+		├── London3.JPG
+		├── London4.JPG
+		├── London5.JPG
+		├── Oslo1.JPG
+		├── Oslo2.JPG
+		├── Oslo3.JPG
+		├── Oslo4.JPG
+		├── Oslo5.JPG
+		├── Rom1.JPG
+		├── Rom2.JPG
+		├── Rom3.JPG
+		├── Rom4.JPG
+		└── Rom5.JPG
+
+		1 directory, 21 files
+
+	$ ./instantgallery.py /tmp/demo /tmp/capitals --title "Capitals" -i
+	
+	Result: http://www.raphaelmichel.de/bilder/demo/
 
 =======================================================================================
 License:
