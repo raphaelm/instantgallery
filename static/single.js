@@ -73,7 +73,6 @@ function load(pic, goal){
 		$("#main").animate({'opacity': 1}, 1000, 'linear');
 		shift = 0;
 	}
-	console.log(pic.exifhtml);
 	if(pic.exifhtml)
 		$("#exifarea").html(pic.exifhtml);
 	else
@@ -90,7 +89,7 @@ $(document).ready(function(){
 	if(location.hash.length > 3){
 		location.href = location.hash.substr(1)+".html";
 	}
-	$("#main, #shift, #shift2, .exif").bind("click", function(){
+	$("#main, #shift, #shift2, .exif, #exifarea").bind("click", function(){
 		if($(".exif").css("opacity") == 0){
 			if($("#map").length > 0) r = 1
 			else r = 0.7
