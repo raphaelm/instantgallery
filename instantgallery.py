@@ -355,6 +355,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			
 		html += "<br /><a href='../index.html' id='back'>"+lang["back"]+"</a>" # the link back to the index
 		
+		exifhtmlsnipp = "<div id='exifarea'></div>"
 		helper['exifhtml'] = False
 		
 		fname = fnames[j-1]
@@ -438,8 +439,10 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 					exifhtml += '<small><a href="http://www.openstreetmap.org/?lat=%s&amp;lon=%s&amp;zoom=15" target="_blank">Gr&ouml;&szlig;ere Karte anzeigen</a></small></td>' % (lat, lon)
 				
 				exifhtml += "</tr></table></div>"
-				html += exifhtml
+				exifhtmlsnipp = "<div id='exifarea'>%s</div>" % exifhtml
 				helper['exifhtml'] = exifhtml
+		
+		html += exifhtmlsnipp
 		
 		helperjson = json.dumps(helper)
 		helperfile = open("%s%s.json" % (pagedir, d[j-1][3]), "w")

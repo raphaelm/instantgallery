@@ -9,7 +9,7 @@ body {
 	text-align: center;
 	font-family: 'Ubuntu', sans-serif;
 	font-size: 13px;
-	overflow-x: hidden;
+	overflow: hidden;
 }
 img#main {
 	max-height: 90%;
@@ -98,6 +98,10 @@ a {
 .thumb {
 	display: inline-block;
 	text-decoration: none;
+	background: url(loading.gif);
+	height: 100px;
+	background: url(loading.gif);
+	width: 100px;
 }
 .thumb span {
 	display: block;
