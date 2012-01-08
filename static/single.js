@@ -48,29 +48,29 @@ function load(pic, goal){
 	// Transition
 	$(".exif").animate({opacity: 0}, 500);
 	if(goal == 1){
-		$("#shift2").animate({'opacity': 0}, 1000);
-		$("#main").animate({'opacity': 0}, 1000, preparenext);
-		$("#shift").animate({'opacity': 1}, 1000);
+		$("#shift2").animate({'opacity': 0}, 1000, 'linear');
+		$("#main").animate({'opacity': 0}, 1000, 'linear', preparenext);
+		$("#shift").animate({'opacity': 1}, 1000, 'linear');
 		shift = 1;
 	}else if(goal == 2){
 		if(shift == 0){
-			$("#main").animate({'opacity': 0}, 1000, preparenext);
-			$("#shift").animate({'opacity': 0}, 1000);
+			$("#main").animate({'opacity': 0}, 1000, 'linear', preparenext);
+			$("#shift").animate({'opacity': 0}, 1000, 'linear');
 		}else{
-			$("#shift").animate({'opacity': 0}, 1000, preparenext);
-			$("#main").animate({'opacity': 0}, 1000);
+			$("#shift").animate({'opacity': 0}, 1000, 'linear', preparenext);
+			$("#main").animate({'opacity': 0}, 1000, 'linear');
 		}
-		$("#shift2").animate({'opacity': 1}, 1000);
+		$("#shift2").animate({'opacity': 1}, 1000, 'linear');
 		shift = 2;
 	}else if(goal == 0){
 		if(shift == 1){
-			$("#shift").animate({'opacity': 0}, 1000, preparenext);
-			$("#shift2").animate({'opacity': 0}, 1000);
+			$("#shift").animate({'opacity': 0}, 1000, 'linear', preparenext);
+			$("#shift2").animate({'opacity': 0}, 1000, 'linear');
 		}else{
-			$("#shift2").animate({'opacity': 0}, 1000, preparenext);
-			$("#shift").animate({'opacity': 0}, 1000);
+			$("#shift2").animate({'opacity': 0}, 1000, 'linear', preparenext);
+			$("#shift").animate({'opacity': 0}, 1000, 'linear');
 		}
-		$("#main").animate({'opacity': 1}, 1000);
+		$("#main").animate({'opacity': 1}, 1000, 'linear');
 		shift = 0;
 	}
 	console.log(pic.exifhtml);
