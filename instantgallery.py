@@ -11,6 +11,7 @@ import subprocess
 import datetime, time
 import zipfile
 import hashlib
+import json
 
 from PIL import Image
 
@@ -20,7 +21,7 @@ if not os.path.exists(LIBDIR):
 	print "Please adjust the setting LIBDIR in line 3 of instantgallery.py"
 	print "It is currently set to: %s" % LIBDIR
 
-VERSION = '1.3.9'
+VERSION = '2.0.0-dev'
 
 # Language strings
 LNGLIST = ['en', 'de']
@@ -316,14 +317,10 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 	for j in xrange(1, i+1): # Third round, this time images only!
 		sys.stdout.write("[2] Processing picture %04d of %04d (%02d%%)         \r" % (j, i, j*100/i))
 		sys.stdout.flush()
-		
-		# We only need to (try to) preload the next photos with JavaScriot
-		# if we aren't already at the end!
-		if j < i-1:
-			rep = (title, wayback, wayback, d[j][3], d[j-1][3], d[j+1][3], wayback)
-		else:
-			rep = (title, wayback, wayback, None, None, None, wayback)
 			
+		# We also build a JSON file to make AJAX possible
+		helper = {}
+		
 		# HTML heder
 		html = """<!DOCTYPE html>
 					<html>
@@ -332,28 +329,33 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 						<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 						<script type="text/javascript" src="../%sjquery.js"></script>
 						<script type="text/javascript" src="../%ssingle.js"></script>
-						<script type="text/javascript">
-						$(document).ready(function(){
-							i = new Image();
-							i.src = "../pictures/%s.jpg";
-							i = new Image();
-							i.src = "../thumbs/%s.jpg";
-							i = new Image();
-							i.src = "../thumbs/%s.jpg";
-						});
-						</script>
 						<link rel="stylesheet" href="../%ssingle.css" type="text/css" />
 					</head>
 
 					<body>
-						""" % rep
+						""" % (title, wayback, wayback, wayback)
 		if j > 1: # "previous" link
 			html += ('<a href="%s.html" class="thumb" id="prev"><img src="../thumbs/%s.jpg" alt="" /><span>'+lang['prev']+'</span></a> ') % (d[j-2][3], d[j-2][3])
+			helper['prev'] = d[j-2][3]
+		else: # ajax stuff
+			html += ('<a class="thumb" id="prev" style="display: none;"><img /><span>'+lang['prev']+'</span></a>')
+			helper['prev'] = False
+			
+		html += '<div id="loading"></div>'
 		html += '<img src="../pictures/%s.jpg" alt="" id="main" />' % d[j-1][3] # the picture itself
+		html += '<img id="shift" /><img id="shift2" />' # ajax stuff
+		helper['current'] = d[j-1][3]
+		
 		if j < i: # "next" link
 			html += (' <a href="%s.html" class="thumb" id="next"><img src="../thumbs/%s.jpg" alt="" /><span>'+lang['next']+'</span></a>') % (d[j][3], d[j][3])
+			helper['next'] = d[j][3]
+		else: # ajax stuff
+			html += ('<a class="thumb" id="next" style="display: none;"><img /><span>'+lang['next']+'</span></a>')
+			helper['next'] = False
 			
 		html += "<br /><a href='../index.html' id='back'>"+lang["back"]+"</a>" # the link back to the index
+		
+		helper['exifhtml'] = False
 		
 		fname = fnames[j-1]
 		if fname.endswith(("jpeg", "JPEG", "jpg", "JPG")) and options.exif:
@@ -370,11 +372,11 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				# Check if we want to parse GPS and if we have GPS data
 				gps = (options.gps and ('GPS GPSLatitude' in tags))
 				if gps:
-					html += "<div class='exif'>"
+					exifhtml = "<div class='exif'>"
 				else:
-					html += "<div class='exif exifsmall'>"
+					exifhtml = "<div class='exif exifsmall'>"
 					
-				html += "<table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
+				exifhtml += "<table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
 				
 				# Parse the EXIF tags
 				if 'EXIF DateTimeOriginal' in tags:
@@ -415,7 +417,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				if 'Image Make' in tags and 'Image Model' in tags:
 					taghtml.append(lang['camera'] % (tags['Image Make'], tags['Image Model']))
 									
-				html += "</tr><tr>".join(taghtml)
+				exifhtml += "</tr><tr>".join(taghtml)
 					
 				if gps:
 					# Now parse the GPS stuff
@@ -431,12 +433,20 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 					
 					# Display openstreetmap map
 					ex = 0.01 # degrees we want to show around in each direction
-					html += '</tr><tr><td colspan="2" style="text-align: center">'
-					html += '<iframe frameborder="0" height="350" marginheight="0" marginwidth="0" scrolling="no" src="http://www.openstreetmap.org/export/embed.html?bbox=%s,%s,%s,%s&amp;layer=mapnik&amp;marker=%s,%s" style="border: 1px solid black" width="440" id="map"></iframe><br />' % (lon-ex, lat-ex, lon+ex, lat+ex, lat, lon)
-					html += '<small><a href="http://www.openstreetmap.org/?lat=%s&amp;lon=%s&amp;zoom=15" target="_blank">Gr&ouml;&szlig;ere Karte anzeigen</a></small></td>' % (lat, lon)
+					exifhtml += '</tr><tr><td colspan="2" style="text-align: center">'
+					exifhtml += '<iframe frameborder="0" height="350" marginheight="0" marginwidth="0" scrolling="no" src="http://www.openstreetmap.org/export/embed.html?bbox=%s,%s,%s,%s&amp;layer=mapnik&amp;marker=%s,%s" style="border: 1px solid black" width="440" id="map"></iframe><br />' % (lon-ex, lat-ex, lon+ex, lat+ex, lat, lon)
+					exifhtml += '<small><a href="http://www.openstreetmap.org/?lat=%s&amp;lon=%s&amp;zoom=15" target="_blank">Gr&ouml;&szlig;ere Karte anzeigen</a></small></td>' % (lat, lon)
 				
-				html += "</tr></table></div>"
-				
+				exifhtml += "</tr></table></div>"
+				html += exifhtml
+				helper['exifhtml'] = exifhtml
+		
+		helperjson = json.dumps(helper)
+		helperfile = open("%s%s.json" % (pagedir, d[j-1][3]), "w")
+		helperfile.write(helperjson)
+		helperfile.close()
+		
+		html += "<script type='text/javascript'>\nvar current = %s\n</script>" % helperjson
 		html += "</body></html>"
 		# save the HTML file
 		f = open("%s%s.html" % (pagedir, d[j-1][3]), "w")

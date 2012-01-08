@@ -9,10 +9,29 @@ body {
 	text-align: center;
 	font-family: 'Ubuntu', sans-serif;
 	font-size: 13px;
+	overflow-x: hidden;
 }
 img#main {
 	max-height: 90%;
 	margin: auto;
+	z-index: 300;
+}
+img#shift, img#shift2 {
+	max-height: 90%;
+	margin: auto;
+	z-index: 400;
+	opacity: 0;
+}
+img#loading {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	margin-left: -50px;
+	margin-right: -50px;
+	width: 100px;
+	height: 100px;
+	z-index: 100;
+	background: url('loading.gif');
 }
 #prev {
 	position: fixed;
@@ -21,6 +40,7 @@ img#main {
 	left: 10px;
 	width: 100px;
 	height: 100px;
+	z-index: 500;
 }
 #next {
 	position: fixed;
@@ -29,6 +49,7 @@ img#main {
 	right: 10px;
 	width: 100px;
 	height: 100px;
+	z-index: 500;
 }
 a img {
 	border: none;
@@ -45,6 +66,7 @@ a {
 	width: 450px;
 	margin-left: -225px;
 	opacity: 0;
+	z-index: 600;
 }
 .exif table {
 	width: 450px;
