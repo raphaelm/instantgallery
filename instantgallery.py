@@ -20,7 +20,7 @@ if not os.path.exists(LIBDIR):
 	print "Please adjust the setting LIBDIR in line 3 of instantgallery.py"
 	print "It is currently set to: %s" % LIBDIR
 
-VERSION = '1.3.8'
+VERSION = '1.3.9'
 
 # Language strings
 LNGLIST = ['en', 'de']
@@ -151,11 +151,25 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 	pagedir = outputd+"picpages/"
 	
 	title = options.title
+	htmltitle = title
 	
 	if sub > 0: # Set the hierarchical title for subdirectories
 		n = outputd.replace(options.output, "")
 		if n.endswith("/"): n = n[:-1]
 		title += " "+n.replace("/", " / ")
+		tparts = title.split(" / ")
+		htmltitleparts = []
+		ti = 0
+		for f in tparts:
+			f = f.strip()
+			if ti == 0:
+				htmltitleparts.append("<a href='%sindex.html' class='back'>%s</a>" % (wayback, f))
+			elif ti == sub:
+				htmltitleparts.append(f)
+			else:
+				htmltitleparts.append("<a href='%sindex.html' class='back'>%s</a>" % ("../"*(sub-(len(tparts)-ti-1)), f))
+			ti += 1
+		htmltitle = " / ".join(htmltitleparts)
 	
 	# Deleting old tuff in the selected directories
 	if (os.path.exists(thumbdir) or os.path.exists(picdir) or os.path.exists(pagedir)) and not options.s:
@@ -452,8 +466,10 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 					<script type="text/javascript" src="%sindex.js"></script>
 				</head>
 
-				<body><h1>%s""") % (title, wayback, wayback, wayback, title)
-	# display links to go a directory up
+				<body><h1>%s""") % (title, wayback, wayback, wayback, htmltitle)
+				
+
+	""" # we don't need to display the link "one directory up" since we linked the headline
 	if sub == 1:
 		html += "   <small><a href='../index.html'>"+lang['up']+"</a>"
 		if options.zip:
@@ -463,14 +479,11 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		if options.zip:
 			html += " &middot; "
 	elif options.zip:
-		html += "   <small>"
+		html += "   <small>" """
 		
 	# display zip download links
 	if options.zip:
-		html += "<a href='pictures/photos.zip'>"+lang['download']+'</a>'
-		
-	if sub == 1 or sub > 1 or options.zip:
-		html += "</small>"
+		html += "<small><a href='pictures/photos.zip'>"+lang['download']+'</a></small>'
 	html += "</h1>"
 	
 	# if -i is specified and there is a file INTRO in the photo directory
