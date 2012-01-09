@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-LIBDIR = '/home/raphael/proj/instantgallery/static'
-
+LIBDIR = '/home/raphael/proj/instantgallery'
+STATICDIR = LIBDIR+'/static'
 import os
 import sys
 import copy
@@ -130,19 +130,49 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		except:
 			raise ValueError("We were unable to create %s" % outputd)
 			
-	if not os.path.exists(LIBDIR+'/single.css'):
-		raise ValueError("%s does not exist" % LIBDIR)
+	if not os.path.exists(STATICDIR+'/single.css'):
+		raise ValueError("%s/single.css does not exist" % STATICDIR)
 			
 	if sub == 0: # Copy static files
-		shutil.copy(LIBDIR+'/single.css', outputd+'single.css')
-		shutil.copy(LIBDIR+'/index.css', outputd+'index.css')
-		shutil.copy(LIBDIR+'/jquery.js', outputd+'jquery.js')
-		shutil.copy(LIBDIR+'/single.js', outputd+'single.js')
-		shutil.copy(LIBDIR+'/index.js', outputd+'index.js')
-		shutil.copy(LIBDIR+'/loading.gif', outputd+'loading.gif')
-		if os.path.exists(LIBDIR+'/Ubuntu.woff'):
-			shutil.copy(LIBDIR+'/Ubuntu.woff', outputd+'Ubuntu.woff')
-				
+		shutil.rmtree(outputd+'static')
+		shutil.copytree(STATICDIR, outputd+'static')
+		# Compile JavaScript files (we want only one per HTTP request!)
+		singlejs = open(outputd+'static/single.comb.js', 'w')
+		indexjs = open(outputd+'static/index.comb.js', 'w')
+		jqueryminified = open(outputd+'static/jquery.js', 'r').read()
+		singlejs.write(jqueryminified+'\n\n')
+		indexjs.write(jqueryminified+'\n\n')
+		singlejs.write(open(outputd+'static/jquery.ba-hashchange.min.js', 'r').read()+'\n\n')
+		try: # Minify JavaScript
+			from slimit import minify
+			singlejs.write(minify(open(outputd+'static/single.js', 'r').read())+'\n\n')
+			indexjs.write(minify(open(outputd+'static/index.js', 'r').read())+'\n\n')
+		except:
+			singlejs.write(open(outputd+'static/single.js', 'r').read()+'\n\n')
+			indexjs.write(open(outputd+'static/index.js', 'r').read()+'\n\n')
+		singlejs.close()
+		indexjs.close()
+		
+		try: # Minify CSS
+			import cssmin
+			minified = cssmin.cssmin(open(outputd+'static/index.css').read())
+			indexcss = open(outputd+'static/index.css', 'w')
+			indexcss.write(minified)
+			indexcss.close()
+			minified = cssmin.cssmin(open(outputd+'static/single.css').read())
+			singlecss = open(outputd+'static/single.css', 'w')
+			singlecss.write(minified)
+			singlecss.close()
+		except:
+			pass
+		
+		# Yes. we copied them useless. That's life. I don't want to blacklist
+		# them from rmtree nor I want to have a whitelist.
+		os.remove(outputd+'static/jquery.js')
+		os.remove(outputd+'static/jquery.ba-hashchange.min.js')
+		os.remove(outputd+'static/single.js')
+		os.remove(outputd+'static/index.js')
+		
 	wayback = "../"*sub
 			
 	# Directory creation
@@ -327,13 +357,12 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 					<head>
 						<title>%s</title>
 						<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-						<script type="text/javascript" src="../%sjquery.js"></script>
-						<script type="text/javascript" src="../%ssingle.js"></script>
-						<link rel="stylesheet" href="../%ssingle.css" type="text/css" />
+						<script type="text/javascript" src="../%sstatic/single.comb.js"></script>
+						<link rel="stylesheet" href="../%sstatic/single.css" type="text/css" />
 					</head>
 
 					<body>
-						""" % (title, wayback, wayback, wayback)
+						""" % (title, wayback, wayback)
 		if j > 1: # "previous" link
 			html += ('<a href="%s.html" class="thumb" id="prev"><img src="../thumbs/%s.jpg" alt="" /><span>'+lang['prev']+'</span></a> ') % (d[j-2][3], d[j-2][3])
 			helper['prev'] = d[j-2][3]
@@ -474,12 +503,11 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				<head>
 					<title>%s</title>
 					<meta http-equiv="content-type" content="text/html;charset=utf-8" />
-					<link rel="stylesheet" href="%sindex.css" type="text/css" />
-					<script type="text/javascript" src="%sjquery.js"></script>
-					<script type="text/javascript" src="%sindex.js"></script>
+					<link rel="stylesheet" href="%sstatic/index.css" type="text/css" />
+					<script type="text/javascript" src="%sstatic/index.comb.js"></script>
 				</head>
 
-				<body><h1>%s""") % (title, wayback, wayback, wayback, htmltitle)
+				<body><h1>%s""") % (title, wayback, wayback, htmltitle)
 				
 
 	""" # we don't need to display the link "one directory up" since we linked the headline

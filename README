@@ -99,6 +99,13 @@ Requirements:
 	* ImageMagick's convert
 		http://imagemagick.org/
 		Debian/Ubuntu: imagemagick
+		
+Optional, for more cool things:
+	Minify the static files:
+		* SlimIt
+			$ [sudo] easy_install-2.7 slimit
+		* CSSmin
+			$ [sudo] easy_install-2.7 cssmin
 
 =======================================================================================
 
