@@ -108,43 +108,52 @@ Optional, for more cool things:
 
 Usage
 -----
-    usage: instantgallery.py [-h] [--title TITLE] [--language LNG] [--no-exif]
-                             [--no-rotate] [--no-sort] [--no-date] [--no-gps]
-                             [--zip] [--sub N] [--intro] [--web-resolution WxH]
-                             [-y] [-s]
+    usage: instantgallery.py [-h] [--title TITLE] [--language LNG] [--no-date]
+                             [--no-sort] [--no-rotate] [--no-exif] [--no-gps]
+                             [--web-resolution WxH] [--zip] [--sub N] [--intro]
+                             [-y] [-s] [--version]
                              INPUT OUTPUT
 
-    Makes a gallery. Now.
-
-    positional arguments:
-      INPUT                 This is directory with pictures for the gallery.
-      OUTPUT                Sets where the gallery should be created.
+    Builds a beautiful web gallery. Now.
 
     optional arguments:
       -h, --help            show this help message and exit
+      --version, -v         show program's version number and exit
+
+    Basic settings:
+      INPUT                 This is directory with pictures for the gallery.
+      OUTPUT                This is where the gallery should be created.
       --title TITLE, -t TITLE
-                            Sets the title of the gallery
+                            Name the gallery
       --language LNG, -l LNG
                             Sets the language to be used in output files.
                             Available languages: en de
-      --no-exif, -e         don't output details from EXIF data
-      --no-rotate, -r       Don't try to automatically rotate pictures.
+
+    Image processing:
+      --no-date, -d         Prevents instantgallery.py from showing the date and
+                            time of the picutres on the index page.
       --no-sort, -c         Do not try to sort the pictures chronologically. (We
                             try first to use EXIF as source for the timestamps,
                             then mtime().)
-      --no-date, -d         Prevents instantgallery.py from showing the date and
-                            time of the picutres on the index page.
+      --no-rotate, -r       Don't try to automatically rotate pictures.
+      --no-exif, -e         don't output details from EXIF data
       --no-gps, -g          Don't display GPS data (does only make sense if EXIF
                             is displayed).
+      --web-resolution WxH, -w WxH
+                            Specify maximal resolution for pictures shown online
+                            (default: 1920x1080)
+
+    Additional settings:
       --zip, -z             Create a zip file with all the images and make it
                             available for download.
       --sub N, -S N         Subdirectory entering depth (0 for staying in the
                             original directory).
       --intro, -i           Use text file INTRO in the picture directories to
                             display on the index page
-      --web-resolution WxH, -w WxH
-                            Specify maximal resolution for pictures shown online
-                            (default: 1920x1080)
+
+    Runtime options:
       -y                    Say yes to everything.
       -s                    Skips the generation of thumbnails and similar things.
-                            Use this only if you're aware of what you're doing.
+                            THIS EXISTS FOR DEBUGGUNG. Use this only if you're
+                            aware of what you're doing.
+

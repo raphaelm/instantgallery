@@ -584,37 +584,47 @@ def resolution(string):
 	else:
 		return (val1, val2)
 	
-parser = argparse.ArgumentParser(description='Makes a gallery. Now.')
-parser.add_argument('input', metavar='INPUT', type=str,
+parser = argparse.ArgumentParser(description='Builds a beautiful web gallery. Now.')
+group1 = parser.add_argument_group('Basic settings')
+group1.add_argument('input', metavar='INPUT', type=str,
                    help='This is directory with pictures for the gallery.')
-parser.add_argument('output', metavar='OUTPUT', type=str,
-                   help='Sets where the gallery should be created.')
-parser.add_argument('--title', '-t', metavar='TITLE', type=str, default='Image Gallery',
-                   help='Sets the title of the gallery')
-parser.add_argument('--language', '-l', metavar='LNG', type=str, default='en',
+group1.add_argument('output', metavar='OUTPUT', type=str,
+                   help='This is where the gallery should be created.')
+group1.add_argument('--title', '-t', metavar='TITLE', type=str, default='Image Gallery',
+                   help='Name the gallery')
+group1.add_argument('--language', '-l', metavar='LNG', type=str, default='en',
                    help='Sets the language to be used in output files. Available languages:\n'+' '.join(LNGLIST), dest='lang', choices=LNGLIST)
-parser.add_argument('--no-exif', '-e', action='store_false', dest='exif',
-                   help='don\'t output details from EXIF data')
-parser.add_argument('--no-rotate', '-r', action='store_false', dest='autorotate',
-                   help='Don\'t try to automatically rotate pictures.')
-parser.add_argument('--no-sort', '-c', action='store_false', dest='sort',
-                   help='Do not try to sort the pictures chronologically. (We try first to use EXIF as source for the timestamps, then mtime().)')
-parser.add_argument('--no-date', '-d', action="store_false", dest='displaydate',
+group2 = parser.add_argument_group('Image processing')
+group2.add_argument('--no-date', '-d', action="store_false", dest='displaydate',
                    help='Prevents instantgallery.py from showing the date and time of the picutres on the index page.')
-parser.add_argument('--no-gps', '-g', action="store_false", dest='gps',
+group2.add_argument('--no-sort', '-c', action='store_false', dest='sort',
+                   help='Do not try to sort the pictures chronologically. (We try first to use EXIF as source for the timestamps, then mtime().)')
+group2.add_argument('--no-rotate', '-r', action='store_false', dest='autorotate',
+                   help='Don\'t try to automatically rotate pictures.')
+group2.add_argument('--no-exif', '-e', action='store_false', dest='exif',
+                   help='don\'t output details from EXIF data')
+group2.add_argument('--no-gps', '-g', action="store_false", dest='gps',
                    help='Don\'t display GPS data (does only make sense if EXIF is displayed).')
-parser.add_argument('--zip', '-z', action="store_true", dest='zip',
-                   help='Create a zip file with all the images and make it available for download.')
-parser.add_argument('--sub', '-S', type=int, dest='sub', default=63, metavar='N',
-                   help='Subdirectory entering depth (0 for staying in the original directory).')
-parser.add_argument('--intro', '-i', dest='intro', action='store_true',
-                   help='Use text file INTRO in the picture directories to display on the index page')
-parser.add_argument('--web-resolution', '-w', dest='webres', type=resolution, metavar='WxH', default=(1920,1080),
+group2.add_argument('--web-resolution', '-w', dest='webres', type=resolution, metavar='WxH', default=(1920,1080),
                    help='Specify maximal resolution for pictures shown online (default: 1920x1080)')
-parser.add_argument('-y', action="store_true", dest='yes',
+group3 = parser.add_argument_group('Additional settings')
+group3.add_argument('--zip', '-z', action="store_true", dest='zip',
+                   help='Create a zip file with all the images and make it available for download.')
+group3.add_argument('--sub', '-S', type=int, dest='sub', default=63, metavar='N',
+                   help='Subdirectory entering depth (0 for staying in the original directory).')
+group3.add_argument('--intro', '-i', dest='intro', action='store_true',
+                   help='Use text file INTRO in the picture directories to display on the index page')
+group4 = parser.add_argument_group('Runtime options')
+group4.add_argument('-y', action="store_true", dest='yes',
                    help='Say yes to everything.')
-parser.add_argument('-s', action="store_true",
-                   help='Skips the generation of thumbnails and similar things. Use this only if you\'re aware of what you\'re doing.')
+group4.add_argument('-s', action="store_true", dest='s',
+                   help='Skips the generation of thumbnails and similar things. THIS EXISTS FOR DEBUGGUNG. Use this only if you\'re aware of what you\'re doing.')
+parser.add_argument('--version', '-v', action='version', version='%(prog)s '+VERSION)
 args = parser.parse_args()
+	
+if args.title == 'Image Gallery':
+	print 'Warning! You\'re creating a gallery without a title. We will use "Image Gallery" as default title!'
+	print 'Specify a title with --title/-t and run this command again, if you\'re not good with this.'
+	print 'If you don\'t want to interrupt this command, let it finish and run the command with -t and -s the next time to save time.'
 
 makegallery(args)
