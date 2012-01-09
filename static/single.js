@@ -154,4 +154,21 @@ $(document).ready(function(){
 		return false;
 	});
 	load(current, 0);
+	
+	$(window).hashchange( function(){
+		if(location.hash == "")
+			var hash = original.current;
+		else
+			var hash = location.hash.substr(1);
+		if(hash.length != 32)
+			return false;
+		if(hash == prevobj.current)
+			$("#prev").click();
+		else if(hash == nextobj.current)
+			$("#prev").click();
+		else if(hash == current.current)
+			x = 3;
+		else
+			location.href = hash+'.html'
+	})
 });

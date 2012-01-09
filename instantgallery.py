@@ -478,7 +478,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		helperfile.write(helperjson)
 		helperfile.close()
 		
-		html += "<script type='text/javascript'>\nvar current = %s\n</script>" % helperjson
+		html += "<script type='text/javascript'>\nvar current = %s; var original = current;\n</script>" % helperjson
 		html += "</body></html>"
 		# save the HTML file
 		f = open("%s%s.html" % (pagedir, d[j-1][3]), "w")
