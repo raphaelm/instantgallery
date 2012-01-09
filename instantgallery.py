@@ -609,8 +609,8 @@ parser.add_argument('--sub', '-S', type=int, dest='sub', default=63, metavar='N'
                    help='Subdirectory entering depth (0 for staying in the original directory).')
 parser.add_argument('--intro', '-i', dest='intro', action='store_true',
                    help='Use text file INTRO in the picture directories to display on the index page')
-parser.add_argument('--web-resolution', '-w', dest='webres', type=resolution, metavar='WxH',
-                   help='Use text file INTRO in the picture directories to display on the index page')
+parser.add_argument('--web-resolution', '-w', dest='webres', type=resolution, metavar='WxH', default=(1920,1080),
+                   help='Specify maximal resolution for pictures shown online (default: 1920x1080)')
 parser.add_argument('-y', action="store_true", dest='yes',
                    help='Say yes to everything.')
 parser.add_argument('-s', action="store_true",

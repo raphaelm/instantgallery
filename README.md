@@ -143,8 +143,8 @@ Usage
       --intro, -i           Use text file INTRO in the picture directories to
                             display on the index page
       --web-resolution WxH, -w WxH
-                            Use text file INTRO in the picture directories to
-                            display on the index page
+                            Specify maximal resolution for pictures shown online
+                            (default: 1920x1080)
       -y                    Say yes to everything.
       -s                    Skips the generation of thumbnails and similar things.
                             Use this only if you're aware of what you're doing.
