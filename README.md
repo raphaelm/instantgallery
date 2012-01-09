@@ -1,29 +1,31 @@
 instantgallery.py
 =================
 
-instantgallery.py takes a directory full of photos and turns it into a photo
-gallery made for the web. Just execute the file with the options you want
-to specify and you're done. To publish the gallery, just upload the OUTPUT
-directory to any webserver. It's plain HTML, so it works on every server.
-
-You can modify the appearance of the gallery by changing the two CSS files
-in the root directory.
+instantgallery.py takes a directory containing photos and turns it into a 
+shiny photo gallery made for the web. ALl you have to do is to enter a single
+command line. To publish the gallery, just upload the output directory to 
+any webserver. It's plain HTML, CSS and Javascript and it thus works regardless 
+of your webserver.
 
 instantgallery.py can handle and display EXIF information and is able to try
 rotating portrait format photos automatically (by using their EXIF rotate
 information combined with their aspect ratio).
 
-By default the photos are ordered by their file names alphabetically but you
-can specify a flag to have them sorted chronologically: instantgallery.py then
-tries to read there EXIF "OriginalDate" field first and uses Unix' mtime() if
-it failes.
+By default the photos are ordered by their timestamp but you can specify a flag to 
+have them sorted alphabetically. In the first case the script tries to read 
+their EXIF "OriginalDate" field first and uses Unix' mtime() if this failes.
 
-For an example see below.
+For an example of a gallery created with this software see below.
+
+instantgallery.py supports EXIF information including GPS (shown using 
+OpenStreetMap), subdirectories, intro texts and generating a ZIP archive
+of the pictures for download.
 
 instantgallery.py is able to generate galleries in other languages than
-English, currently only German is supported. If you add another language
+English, but currently only German is supported. If you add another language
 I would be glad to get an email (<raphael@geeksfactory.de>) or just fork
-the project on github (<https://github.com/raphaelm/instantgallery>).
+the project on github (<https://github.com/raphaelm/instantgallery>) and
+send me a pull request.
 
 Please report all bugs to <raphael@geeksfactory.de>
 
@@ -106,40 +108,43 @@ Optional, for more cool things:
 
 Usage
 -----
-
     usage: instantgallery.py [-h] [--title TITLE] [--language LNG] [--no-exif]
-							 [--no-rotate] [--no-sort] [--no-date] [--no-gps]
-							 [--zip] [--sub N] [--intro] [-y] [-s]
-							 INPUT OUTPUT
+                             [--no-rotate] [--no-sort] [--no-date] [--no-gps]
+                             [--zip] [--sub N] [--intro] [--web-resolution WxH]
+                             [-y] [-s]
+                             INPUT OUTPUT
 
-	Makes a gallery. Now.
+    Makes a gallery. Now.
 
-	positional arguments:
-	  INPUT                 This is directory with pictures for the gallery.
-	  OUTPUT                Sets where the gallery should be created.
+    positional arguments:
+      INPUT                 This is directory with pictures for the gallery.
+      OUTPUT                Sets where the gallery should be created.
 
-	optional arguments:
-	  -h, --help            show this help message and exit
-	  --title TITLE, -t TITLE
-							Sets the title of the gallery
-	  --language LNG, -l LNG
-							Sets the language to be used in output files.
-							Available languages: en de
-	  --no-exif, -e         don't output details from EXIF data
-	  --no-rotate, -r       Don't try to automatically rotate pictures.
-	  --no-sort, -c         Do not try to sort the pictures chronologically. (We
-							try first to use EXIF as source for the timestamps,
-							then mtime().)
-	  --no-date, -d         Prevents instantgallery.py from showing the date and
-							time of the picutres on the index page.
-	  --no-gps, -g          Don't display GPS data (does only make sense if EXIF
-							is displayed).
-	  --zip, -z             Create a zip file with all the images and make it
-							available for download.
-	  --sub N, -S N         Subdirectory entering depth (0 for staying in the
-							original directory).
-	  --intro, -i           Use text file INTRO in the picture directories to
-							display on the index page
-	  -y                    Say yes to everything.
-	  -s                    Skips the generation of thumbnails and similar things.
-							Use this only if you're aware of what you're doing.
+    optional arguments:
+      -h, --help            show this help message and exit
+      --title TITLE, -t TITLE
+                            Sets the title of the gallery
+      --language LNG, -l LNG
+                            Sets the language to be used in output files.
+                            Available languages: en de
+      --no-exif, -e         don't output details from EXIF data
+      --no-rotate, -r       Don't try to automatically rotate pictures.
+      --no-sort, -c         Do not try to sort the pictures chronologically. (We
+                            try first to use EXIF as source for the timestamps,
+                            then mtime().)
+      --no-date, -d         Prevents instantgallery.py from showing the date and
+                            time of the picutres on the index page.
+      --no-gps, -g          Don't display GPS data (does only make sense if EXIF
+                            is displayed).
+      --zip, -z             Create a zip file with all the images and make it
+                            available for download.
+      --sub N, -S N         Subdirectory entering depth (0 for staying in the
+                            original directory).
+      --intro, -i           Use text file INTRO in the picture directories to
+                            display on the index page
+      --web-resolution WxH, -w WxH
+                            Use text file INTRO in the picture directories to
+                            display on the index page
+      -y                    Say yes to everything.
+      -s                    Skips the generation of thumbnails and similar things.
+                            Use this only if you're aware of what you're doing.

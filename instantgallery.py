@@ -339,7 +339,8 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			cmdline.append("%s%s.jpg" % (thumbdir, f[3]))
 			subprocess.Popen(cmdline).wait()
 				
-			im.thumbnail((1920,1080), Image.ANTIALIAS)
+			webr = options.webres
+			im.thumbnail((int(webr[0]), int(webr[1])), Image.ANTIALIAS)
 			im.save("%s%s.jpg" % (picdir, f[3]))
 			del im # Free some RAM
 			
@@ -568,7 +569,21 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		first = None
 	return (new, i, len(dirs), first)
 	
-# parse arguments		
+# parse arguments	
+def resolution(string):
+	try:
+		vals = string.tolower().split("x")
+		val1 = int(vals[0])
+		val2 = int(vals[1])
+	except:
+		val1 = 0
+		val2 = 0
+		
+	if val1 < 1 or val2 < 1:
+		raise argparse.ArgumentTypeError("Please specify two integers, connected by 'x'")
+	else:
+		return (val1, val2)
+	
 parser = argparse.ArgumentParser(description='Makes a gallery. Now.')
 parser.add_argument('input', metavar='INPUT', type=str,
                    help='This is directory with pictures for the gallery.')
@@ -593,6 +608,8 @@ parser.add_argument('--zip', '-z', action="store_true", dest='zip',
 parser.add_argument('--sub', '-S', type=int, dest='sub', default=63, metavar='N',
                    help='Subdirectory entering depth (0 for staying in the original directory).')
 parser.add_argument('--intro', '-i', dest='intro', action='store_true',
+                   help='Use text file INTRO in the picture directories to display on the index page')
+parser.add_argument('--web-resolution', '-w', dest='webres', type=resolution, metavar='WxH',
                    help='Use text file INTRO in the picture directories to display on the index page')
 parser.add_argument('-y', action="store_true", dest='yes',
                    help='Say yes to everything.')
