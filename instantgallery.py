@@ -602,7 +602,7 @@ group2.add_argument('--no-sort', '-c', action='store_false', dest='sort',
 group2.add_argument('--no-rotate', '-r', action='store_false', dest='autorotate',
                    help='Don\'t try to automatically rotate pictures.')
 group2.add_argument('--no-exif', '-e', action='store_false', dest='exif',
-                   help='don\'t output details from EXIF data')
+                   help='Don\'t output details from EXIF data')
 group2.add_argument('--no-gps', '-g', action="store_false", dest='gps',
                    help='Don\'t display GPS data (does only make sense if EXIF is displayed).')
 group2.add_argument('--web-resolution', '-w', dest='webres', type=resolution, metavar='WxH', default=(1920,1080),
