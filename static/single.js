@@ -7,27 +7,14 @@ var prevshift = 2;
 function load(pic, goal){
 	// Prev
 	if(pic.prev === false) $("#prev").fadeOut()
-	else $("#prev").fadeIn()
-	$("#prev img").attr("src", "../thumbs/"+pic.prev+".jpg")
-	$("#prev").attr("href", pic.prev+".html")
+	else {
+		$("#prev").fadeIn()
+		$("#prev img").attr("src", "../thumbs/"+pic.prev+".jpg")
+		$("#prev").attr("href", pic.prev+".html")
+	}
 	
 	// Prepare next
 	var preparenext = function(){
-		$.getJSON(pic.next+".json", function(data, status){
-			nextobj = data;
-			if(shift == 0){
-				$("#shift").attr("src", "../pictures/"+nextobj.current+".jpg");
-				nextshift = 1;
-			}else{
-				$("#main").attr("src", "../pictures/"+nextobj.current+".jpg");
-				nextshift = 0;
-			}
-			if(prevobj == false){
-				$.getJSON(pic.prev+".json", dopref);
-			}else{
-				dopref(prevobj);
-			}
-		});
 		var dopref = function(data, status){
 			prevobj = data;
 			if(shift != 2){
@@ -42,6 +29,32 @@ function load(pic, goal){
 					prevshift = 0;					
 				}
 			}
+		}
+		if(pic.next == false){
+			if(prevobj == false){
+				if(pic.prev !== false)
+					$.getJSON(pic.prev+".json", dopref);
+			}else{
+				dopref(prevobj);
+			}
+			return 0;
+		}else{
+			$.getJSON(pic.next+".json", function(data, status){
+				nextobj = data;
+				if(shift == 0){
+					$("#shift").attr("src", "../pictures/"+nextobj.current+".jpg");
+					nextshift = 1;
+				}else{
+					$("#main").attr("src", "../pictures/"+nextobj.current+".jpg");
+					nextshift = 0;
+				}
+				if(prevobj == false){
+					if(pic.prev !== false)
+						$.getJSON(pic.prev+".json", dopref);
+				}else{
+					dopref(prevobj);
+				}
+			});
 		}
 	}
 	
@@ -80,9 +93,11 @@ function load(pic, goal){
 		
 	// Next
 	if(pic.next === false) $("#next").fadeOut();
-	else $("#next").fadeIn();
-	$("#next img").attr("src", "../thumbs/"+pic.next+".jpg");
-	$("#next").attr("href", pic.next+".html");
+	else{ 
+		$("#next").fadeIn();
+		$("#next img").attr("src", "../thumbs/"+pic.next+".jpg");
+		$("#next").attr("href", pic.next+".html");
+	}
 }
 
 $(document).ready(function(){
