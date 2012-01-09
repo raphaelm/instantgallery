@@ -64,30 +64,31 @@ Result: http://www.raphaelmichel.de/bilder/demo/
 License
 -------
 
-    The software ist free and open source software and published unter the terms
+The software ist free and open source software and published unter the terms
 of the MIT license.
 
 Copyright (c) 2011 Raphael Michel
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of 
-this software and associated documentation files (the "Software"), to deal in the 
-Software without restriction, including without limitation the rights to use, copy, 
-modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
-and to permit persons to whom the Software is furnished to do so, subject to the 
-following conditions:
-The above copyright notice and this permission notice shall be included in 
-all copies or substantial portions of the Software.
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
-DEALINGS IN THE SOFTWARE.
+> Permission is hereby granted, free of charge, to any person obtaining a copy of 
+> this software and associated documentation files (the "Software"), to deal in the 
+> Software without restriction, including without limitation the rights to use, copy, 
+> modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, 
+> and to permit persons to whom the Software is furnished to do so, subject to the 
+> following conditions:
+> The above copyright notice and this permission notice shall be included in 
+> all copies or substantial portions of the Software.
+> 
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+> IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+> FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+> AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+> LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+> FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+> DEALINGS IN THE SOFTWARE.
 
-The default font is 'Ubuntu' which is Copyright 2010 ,2011 Canonical Ltd.
+The default font is 'Ubuntu' which is Copyright 2010, 2011 Canonical Ltd.
 To remove it, just remove the first 6 lines from both .css files and
-remove the file 'Ubuntu.woff'.
+remove the file 'static/Ubuntu.woff'.
 The font is licensed under the Ubuntu Font Licence, Version 1.0. 
 https://launchpad.net/ubuntu-font-licence
 
@@ -99,6 +100,7 @@ Requirements
 * [ImageMagick's convert](http://imagemagick.org/) (Debian/Ubuntu: `imagemagick`)
         
 Optional, for more cool things:
+
 * SlimIt (`$ [sudo] easy_install-2.7 slimit`)
 * CSSmin (`$ [sudo] easy_install-2.7 cssmin`)
 
