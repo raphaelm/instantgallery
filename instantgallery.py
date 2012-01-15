@@ -134,7 +134,8 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		raise ValueError("%s/single.css does not exist" % STATICDIR)
 			
 	if sub == 0: # Copy static files
-		shutil.rmtree(outputd+'static')
+		if os.path.exists(outputd+'static'):
+			shutil.rmtree(outputd+'static')
 		shutil.copytree(STATICDIR, outputd+'static')
 		# Compile JavaScript files (we want only one per HTTP request!)
 		singlejs = open(outputd+'static/single.comb.js', 'w')
@@ -525,7 +526,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		
 	# display zip download links
 	if options.zip:
-		html += "<small><a href='pictures/photos.zip'>"+lang['download']+'</a></small>'
+		html += "   <small><a href='pictures/photos.zip'>"+lang['download']+'</a></small>'
 	html += "</h1>"
 	
 	# if -i is specified and there is a file INTRO in the photo directory
