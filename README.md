@@ -112,7 +112,8 @@ Usage
     usage: instantgallery.py [-h] [--title TITLE] [--language LNG] [--no-date]
                              [--no-sort] [--no-rotate] [--no-exif] [--no-gps]
                              [--web-resolution WxH] [--zip] [--sub N]
-                             [--filenames] [--intro] [-y] [-s] [--version]
+                             [--filenames] [--intro] [--no-promoting] [-y] [-s]
+                             [--version]
                              INPUT OUTPUT
 
     Builds a beautiful web gallery. Now.
@@ -151,7 +152,9 @@ Usage
                             original directory).
       --filenames, -f       Display filenames in image details.
       --intro, -i           Use text file INTRO in the picture directories to
-                            display on the index page
+                            display on the index page.
+      --no-promoting        Do not include a link to instantgallery.py's website
+                            in the footer of the gallery's overview.
 
     Runtime options:
       -y                    Say yes to everything.

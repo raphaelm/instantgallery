@@ -21,7 +21,7 @@ if not os.path.exists(LIBDIR):
 	print "Please adjust the setting LIBDIR in line 3 of instantgallery.py"
 	print "It is currently set to: %s" % LIBDIR
 
-VERSION = '2.0.1-dev'
+VERSION = '2.0.2-dev'
 
 # Language strings
 LNGLIST = ['en', 'de']
@@ -585,7 +585,8 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		html += '</a> '
 		
 	# promote this software
-	html += ("<div class='poweredby'>"+lang['powered']+"</div>") % (datetime.date.today().strftime("%d.%m.%Y"), VERSION)
+	if options.promote:
+		html += ("<div class='poweredby'>"+lang['powered']+"</div>") % (datetime.date.today().strftime("%d.%m.%Y"), VERSION)
 	html += "</body></html>"
 	if HTMLMIN:
 		html = html_minify(html)
@@ -645,7 +646,9 @@ group3.add_argument('--sub', '-S', type=int, dest='sub', default=63, metavar='N'
 group3.add_argument('--filenames', '-f', dest='filenames', action="store_true",
                    help='Display filenames in image details.')
 group3.add_argument('--intro', '-i', dest='intro', action='store_true',
-                   help='Use text file INTRO in the picture directories to display on the index page')
+                   help='Use text file INTRO in the picture directories to display on the index page.')
+group3.add_argument('--no-promoting', dest='promote', action='store_false',
+                   help='Do not include a link to instantgallery.py\'s website in the footer of the gallery\'s overview.')
 group4 = parser.add_argument_group('Runtime options')
 group4.add_argument('-y', action="store_true", dest='yes',
                    help='Say yes to everything.')
