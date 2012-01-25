@@ -653,7 +653,7 @@ group4 = parser.add_argument_group('Runtime options')
 group4.add_argument('-y', action="store_true", dest='yes',
                    help='Say yes to everything.')
 group4.add_argument('-s', action="store_true", dest='s',
-                   help='Skips the generation of thumbnails and similar things. THIS EXISTS FOR DEBUGGUNG. Use this only if you\'re aware of what you\'re doing.')
+                   help='Skips the generation of thumbnails and similar things. THIS EXISTS FOR DEBUGGING. Use this only if you\'re aware of what you\'re doing.')
 parser.add_argument('--version', '-v', action='version', version='%(prog)s '+VERSION)
 args = parser.parse_args()
 	

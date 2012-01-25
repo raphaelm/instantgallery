@@ -159,5 +159,5 @@ Usage
     Runtime options:
       -y                    Say yes to everything.
       -s                    Skips the generation of thumbnails and similar things.
-                            THIS EXISTS FOR DEBUGGUNG. Use this only if you're
+                            THIS EXISTS FOR DEBUGGING. Use this only if you're
                             aware of what you're doing.
