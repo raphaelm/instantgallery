@@ -101,10 +101,11 @@ Requirements
 * [Python Imaging Library (PIL)](http://www.pythonware.com/products/pil/) (Debian/Ubuntu: `python-imaging`)
 * [ImageMagick's convert](http://imagemagick.org/) (Debian/Ubuntu: `imagemagick`)
         
-Optional, for more cool things:
+Optional, for more cool features:
 
 * SlimIt (`$ [sudo] easy_install-2.7 slimit`)
 * CSSmin (`$ [sudo] easy_install-2.7 cssmin`)
+* Django-HTMLmin (`$ [sudo] easy_install-2.7 django-htmlmin`)
 
 Usage
 -----

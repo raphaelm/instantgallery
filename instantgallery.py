@@ -109,6 +109,14 @@ langstrings = {
 # Supported formats
 FORMATS = ("png", "PNG", "jpg", "JPG", "bmp", "BMP", "jpeg", "JPEG", "tif", "TIF", "tiff", "TIFF")
 
+# Optional modules
+HTMLMIN = False
+try:
+	from htmlmin.minify import html_minify
+	HTMLMIN = True
+except:
+	HTMLMIN = False
+
 def makegallery(options, sub = 0, inputd = False, outputd = False):
 	# main procedure, used recursively for subdirectories
 	
@@ -496,6 +504,10 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		
 		html += "<script type='text/javascript'>\nvar current = %s; var original = current;\n</script>" % helperjson
 		html += "</body></html>"
+		
+		if HTMLMIN:
+			html = html_minify(html)
+		
 		# save the HTML file
 		f = open("%s%s.html" % (pagedir, d[j-1][3]), "w")
 		f.write(html)
@@ -575,6 +587,8 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 	# promote this software
 	html += ("<div class='poweredby'>"+lang['powered']+"</div>") % (datetime.date.today().strftime("%d.%m.%Y"), VERSION)
 	html += "</body></html>"
+	if HTMLMIN:
+		html = html_minify(html)
 	f = open("%sindex.html" % (htmldir), "w")
 	f.write(html)
 	f.close() # have fun
