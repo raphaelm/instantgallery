@@ -21,7 +21,7 @@ if not os.path.exists(LIBDIR):
 	print "Please adjust the setting LIBDIR in line 3 of instantgallery.py"
 	print "It is currently set to: %s" % LIBDIR
 
-VERSION = '2.0.0-dev'
+VERSION = '2.0.1-dev'
 
 # Language strings
 LNGLIST = ['en', 'de']
@@ -39,6 +39,7 @@ langstrings = {
 		'fnumber': '<td>Blendenzahl:</td><td>F%s</td>',
 		'exptime': '<td>Belichtungszeit:</td><td>%ss</td>',
 		'taken': '<td>Aufgenommen:</td><td>%s</td>',
+		'filename': '<td>Dateiname:</td><td>%s</td>',
 		'datetime': "%d.%m.%Y %H:%M:%S",
 		'2ldatetime': "%d.%m.%Y<br />%H:%M:%S",
 		'next': 'nächstes',
@@ -78,6 +79,7 @@ langstrings = {
 		'fnumber': '<td>F number:</td><td>F%s</td>',
 		'exptime': '<td>Exposure time:</td><td>%ss</td>',
 		'taken': '<td>Taken: </td><td>%s</td>',
+		'filename': '<td>File name:</td><td>%s</td>',
 		'datetime': "%m/%d/%Y %H:%M:%S",
 		'2ldatetime': "%m/%d/%Y<br />%H:%M:%S",
 		'next': 'next',
@@ -359,12 +361,13 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 					<head>
 						<title>%s</title>
 						<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+						<meta name="generator" content="instantgallery.py %s" />
 						<script type="text/javascript" src="../%sstatic/single.comb.js"></script>
 						<link rel="stylesheet" href="../%sstatic/single.css" type="text/css" />
 					</head>
 
 					<body>
-						""" % (title, wayback, wayback)
+						""" % (title, VERSION, wayback, wayback)
 		if j > 1: # "previous" link
 			html += ('<a href="%s.html" class="thumb" id="prev"><img src="../thumbs/%s.jpg" alt="" /><span>'+lang['prev']+'</span></a> ') % (d[j-2][3], d[j-2][3])
 			helper['prev'] = d[j-2][3]
@@ -409,6 +412,9 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 					exifhtml = "<div class='exif exifsmall'>"
 					
 				exifhtml += "<table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
+				
+				if options.filenames:
+					exifhtml += (lang['filename']+"</tr><tr>") % os.path.basename(fname)
 				
 				# Parse the EXIF tags
 				if 'EXIF DateTimeOriginal' in tags:
@@ -472,7 +478,15 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				exifhtml += "</tr></table></div>"
 				exifhtmlsnipp = "<div id='exifarea'>%s</div>" % exifhtml
 				helper['exifhtml'] = exifhtml
-		
+				
+		elif options.filenames:
+			exifhtml = "<div class='exif exifsmall'>"
+			exifhtml += "<table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
+			exifhtml += lang['filename'] % os.path.basename(fname)
+			exifhtml += "</tr></table></div>"
+			exifhtmlsnipp = "<div id='exifarea'>%s</div>" % exifhtml
+			helper['exifhtml'] = exifhtml
+				
 		html += exifhtmlsnipp
 		
 		helperjson = json.dumps(helper)
@@ -505,11 +519,12 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				<head>
 					<title>%s</title>
 					<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+					<meta name="generator" content="instantgallery.py %s" />
 					<link rel="stylesheet" href="%sstatic/index.css" type="text/css" />
 					<script type="text/javascript" src="%sstatic/index.comb.js"></script>
 				</head>
 
-				<body><h1>%s""") % (title, wayback, wayback, htmltitle)
+				<body><h1>%s""") % (title, VERSION, wayback, wayback, htmltitle)
 				
 
 	""" # we don't need to display the link "one directory up" since we linked the headline
@@ -613,6 +628,8 @@ group3.add_argument('--zip', '-z', action="store_true", dest='zip',
                    help='Create a zip file with all the images and make it available for download.')
 group3.add_argument('--sub', '-S', type=int, dest='sub', default=63, metavar='N',
                    help='Subdirectory entering depth (0 for staying in the original directory).')
+group3.add_argument('--filenames', '-f', dest='filenames', action="store_true",
+                   help='Display filenames in image details.')
 group3.add_argument('--intro', '-i', dest='intro', action='store_true',
                    help='Use text file INTRO in the picture directories to display on the index page')
 group4 = parser.add_argument_group('Runtime options')
@@ -627,5 +644,6 @@ if args.title == 'Image Gallery':
 	print 'Warning! You\'re creating a gallery without a title. We will use "Image Gallery" as default title!'
 	print 'Specify a title with --title/-t and run this command again, if you\'re not good with this.'
 	print 'If you don\'t want to interrupt this command, let it finish and run the command with -t and -s the next time to save time.'
+
 
 makegallery(args)

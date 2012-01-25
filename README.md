@@ -110,8 +110,8 @@ Usage
 -----
     usage: instantgallery.py [-h] [--title TITLE] [--language LNG] [--no-date]
                              [--no-sort] [--no-rotate] [--no-exif] [--no-gps]
-                             [--web-resolution WxH] [--zip] [--sub N] [--intro]
-                             [-y] [-s] [--version]
+                             [--web-resolution WxH] [--zip] [--sub N]
+                             [--filenames] [--intro] [-y] [-s] [--version]
                              INPUT OUTPUT
 
     Builds a beautiful web gallery. Now.
@@ -136,7 +136,7 @@ Usage
                             try first to use EXIF as source for the timestamps,
                             then mtime().)
       --no-rotate, -r       Don't try to automatically rotate pictures.
-      --no-exif, -e         don't output details from EXIF data
+      --no-exif, -e         Don't output details from EXIF data
       --no-gps, -g          Don't display GPS data (does only make sense if EXIF
                             is displayed).
       --web-resolution WxH, -w WxH
@@ -148,6 +148,7 @@ Usage
                             available for download.
       --sub N, -S N         Subdirectory entering depth (0 for staying in the
                             original directory).
+      --filenames, -f       Display filenames in image details.
       --intro, -i           Use text file INTRO in the picture directories to
                             display on the index page
 
@@ -156,4 +157,3 @@ Usage
       -s                    Skips the generation of thumbnails and similar things.
                             THIS EXISTS FOR DEBUGGUNG. Use this only if you're
                             aware of what you're doing.
-
