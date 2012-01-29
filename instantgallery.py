@@ -603,7 +603,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 # parse arguments	
 def resolution(string):
 	try:
-		vals = string.tolower().split("x")
+		vals = string.lower().split("x")
 		val1 = int(vals[0])
 		val2 = int(vals[1])
 	except:
