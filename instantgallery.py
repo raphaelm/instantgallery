@@ -21,7 +21,7 @@ if not os.path.exists(LIBDIR):
 	print "Please adjust the setting LIBDIR in line 3 of instantgallery.py"
 	print "It is currently set to: %s" % LIBDIR
 
-VERSION = '2.0.2-dev'
+VERSION = '2.0.3'
 
 # Language strings
 LNGLIST = ['en', 'de']
@@ -156,9 +156,11 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		singlejs.write(open(outputd+'static/jquery.ba-hashchange.min.js', 'r').read()+'\n\n')
 		try: # Minify JavaScript
 			from slimit import minify
+			singlejs.write(minify(open(outputd+'static/jquery.hotkeys.js', 'r').read())+'\n\n')
 			singlejs.write(minify(open(outputd+'static/single.js', 'r').read())+'\n\n')
 			indexjs.write(minify(open(outputd+'static/index.js', 'r').read())+'\n\n')
 		except:
+			singlejs.write(open(outputd+'static/jquery.hotkeys.js', 'r').read()+'\n\n')
 			singlejs.write(open(outputd+'static/single.js', 'r').read()+'\n\n')
 			indexjs.write(open(outputd+'static/index.js', 'r').read()+'\n\n')
 		singlejs.close()

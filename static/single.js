@@ -134,8 +134,7 @@ $(document).ready(function(){
 			$(v).css("position", "absolute").css("top", "8px").css("left", "50%").css("margin-left", parseInt($(v).width()*(-1/2))+"px")
 		});
 	});
-	
-	$("#next").bind("click", function(){
+	var next = function(){
 		if(!nextobj){ return true; }
 		prevobj = current;
 		location.hash = nextobj.current;
@@ -143,8 +142,8 @@ $(document).ready(function(){
 		nextobj = false;
 		load(current, nextshift);
 		return false;
-	});
-	$("#prev").bind("click", function(){
+	};
+	var prev = function(){
 		if(!prevobj){ return true; }
 		nextobj = current;
 		location.hash = prevobj.current;
@@ -152,7 +151,13 @@ $(document).ready(function(){
 		prevobj = false;
 		load(current, prevshift);
 		return false;
-	});
+	};
+	$("#next").bind("click", next);
+	$("#prev").bind("click", prev);
+	$(document).bind('keydown', 'n', next);
+	$(document).bind('keydown', 'p', prev);
+	$(document).bind('keydown', 'right', next);
+	$(document).bind('keydown', 'left', prev);
 	load(current, 0);
 	
 	$(window).hashchange( function(){
