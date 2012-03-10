@@ -433,13 +433,13 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 						taghtml.append(lang['taken'] % time.strftime(lang['datetime'], dt))
 				if 'EXIF ExposureTime' in tags:
 					tv = tags['EXIF ExposureTime']
-					if tv.values[0].den == 2 or tv.values[0].den == 5:
+					if tv.values[0].den == 2 or tv.values[0].den == 5 or tv.values[0].den == 10:
 						# We want 3.5 instead of 7/2 but 1/60 instead of 0,0167
 						tv = float(tv.values[0].num)/float(tv.values[0].den)
 					taghtml.append(lang['exptime'] % tv)
 				if 'EXIF FNumber' in tags:
 					tv = tags['EXIF FNumber']
-					if tv.values[0].den == 2 or tv.values[0].den == 5:
+					if tv.values[0].den == 2 or tv.values[0].den == 5 or tv.values[0].den == 10:
 						tv = float(tv.values[0].num)/float(tv.values[0].den)
 					taghtml.append(lang['fnumber'] % tv)
 				if 'EXIF Flash' in tags:
@@ -451,7 +451,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 					taghtml.append(lang['iso'] % tags['EXIF ISOSpeedRatings'])
 				if 'EXIF FocalLength' in tags:
 					tv = tags['EXIF FocalLength']
-					if tv.values[0].den == 2 or tv.values[0].den == 5:
+					if tv.values[0].den == 2 or tv.values[0].den == 5 or tv.values[0].den == 10:
 						tv = float(tv.values[0].num)/float(tv.values[0].den)
 					taghtml.append(lang['focallength'] % tv)
 				if 'EXIF MeteringMode' in tags:
