@@ -519,7 +519,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 	if options.zip:
 		sys.stdout.write("[4] Generating ZIP file                       \r")
 		z = zipfile.ZipFile("%sphotos.zip" % (picdir,), "w")
-		for j in xrange(1, i):
+		for j in xrange(1, i+1):
 			z.write("%s%s.jpg" % (picdir, d[j-1][3]), "%04d-%s.jpg" % (j, d[j-1][3]))
 		z.close()
 		
