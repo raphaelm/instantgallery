@@ -520,7 +520,11 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		sys.stdout.write("[4] Generating ZIP file                       \r")
 		z = zipfile.ZipFile("%sphotos.zip" % (picdir,), "w")
 		for j in xrange(1, i+1):
-			z.write("%s%s.jpg" % (picdir, d[j-1][3]), "%04d-%s.jpg" % (j, d[j-1][3]))
+			if options.zipnames:
+				z.write("%s%s.jpg" % (picdir, d[j-1][3]), "%04d-%s.jpg" % (j, options.zipnames))
+			else:
+				z.write("%s%s.jpg" % (picdir, d[j-1][3]), "%04d-%s.jpg" % (j, d[j-1][3]))
+
 		z.close()
 		
 	# Generate the index page
@@ -651,6 +655,7 @@ group3.add_argument('--intro', '-i', dest='intro', action='store_true',
                    help='Use text file INTRO in the picture directories to display on the index page.')
 group3.add_argument('--no-promoting', dest='promote', action='store_false',
                    help='Do not include a link to instantgallery.py\'s website in the footer of the gallery\'s overview.')
+group3.add_argument('--zipnames', dest='zipnames', type=str, default=False, metavar='SCHEMA', help='Gallery name for the filenames in the zip file')
 group4 = parser.add_argument_group('Runtime options')
 group4.add_argument('-y', action="store_true", dest='yes',
                    help='Say yes to everything.')
