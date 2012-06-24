@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-LIBDIR = '/home/raphael/proj/instantgallery'
+LIBDIR = '/daten/proj/instantgallery'
 STATICDIR = LIBDIR+'/static'
 import os
 import sys
@@ -554,7 +554,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		html += "   <small>" """
 		
 	# display zip download links
-	if options.zip:
+	if options.zip and i > 0:
 		html += "   <small><a href='pictures/photos.zip'>"+lang['download']+'</a></small>'
 	html += "</h1>"
 	
