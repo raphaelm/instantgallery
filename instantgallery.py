@@ -21,7 +21,7 @@ if not os.path.exists(LIBDIR):
 	print "Please adjust the setting LIBDIR in line 3 of instantgallery.py"
 	print "It is currently set to: %s" % LIBDIR
 
-VERSION = '2.0.3'
+VERSION = '2.0.4'
 
 # Language strings
 LNGLIST = ['en', 'de']
