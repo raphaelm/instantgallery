@@ -3,6 +3,7 @@ var prevobj = false;
 var shift = 0;
 var nextshift = 1;
 var prevshift = 2;
+var z_topmost = 10;
 
 function load(pic, goal){
 	// Prev
@@ -63,7 +64,7 @@ function load(pic, goal){
 	if(goal == 1){
 		$("#shift2").animate({'opacity': 0}, 1000, 'linear');
 		$("#main").animate({'opacity': 0}, 1000, 'linear', preparenext);
-		$("#shift").animate({'opacity': 1}, 1000, 'linear');
+		$("#shift").animate({'opacity': 1}, 1000, 'linear', function(){$(this).css("z-index", ++z_topmost);});
 		shift = 1;
 	}else if(goal == 2){
 		if(shift == 0){
@@ -73,7 +74,7 @@ function load(pic, goal){
 			$("#shift").animate({'opacity': 0}, 1000, 'linear', preparenext);
 			$("#main").animate({'opacity': 0}, 1000, 'linear');
 		}
-		$("#shift2").animate({'opacity': 1}, 1000, 'linear');
+		$("#shift2").animate({'opacity': 1}, 1000, 'linear', function(){$(this).css("z-index", ++z_topmost);});
 		shift = 2;
 	}else if(goal == 0){
 		if(shift == 1){
@@ -83,7 +84,7 @@ function load(pic, goal){
 			$("#shift2").animate({'opacity': 0}, 1000, 'linear', preparenext);
 			$("#shift").animate({'opacity': 0}, 1000, 'linear');
 		}
-		$("#main").animate({'opacity': 1}, 1000, 'linear');
+		$("#main").animate({'opacity': 1}, 1000, 'linear', function(){$(this).css("z-index", ++z_topmost);});
 		shift = 0;
 	}
 	if(pic.exifhtml)
