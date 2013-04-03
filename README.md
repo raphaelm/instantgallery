@@ -27,7 +27,24 @@ I would be glad to get an email (<raphael@geeksfactory.de>) or just fork
 the project on github (<https://github.com/raphaelm/instantgallery>) and
 send me a pull request.
 
-Please report all bugs to <raphael@geeksfactory.de>
+4gra Fork
+---------
+This version of instantgallery.py is a fork by github.com/4gra and contains
+the following enhancements:
+ - unicode support on image filenames and HTML output
+ - configurable parallel image / thumbnail processing
+ - more liberal input file handling
+
+
+Bugs
+----
+
+The original author writes:
+  "Please report all bugs to <raphael@geeksfactory.de>"
+ 
+but bugs found in this version might be better filed against the fork at:
+  https://github.com/4gra/instantgallery
+
 
 Example
 -------
@@ -66,7 +83,7 @@ Result: http://www.raphaelmichel.de/bilder/demo/
 License
 -------
 
-The software ist free and open source software and published unter the terms
+The software is free and open source software and published unter the terms
 of the MIT license.
 
 Copyright (c) 2011 Raphael Michel
@@ -112,7 +129,8 @@ Usage
     usage: instantgallery.py [-h] [--title TITLE] [--language LNG] [--no-date]
                              [--no-sort] [--no-rotate] [--no-exif] [--no-gps]
                              [--web-resolution WxH] [--zip] [--sub N]
-                             [--filenames] [--intro] [--no-promoting] [-y] [-s]
+                             [--filenames] [--intro] [--no-promoting] 
+                             [--zipnames SCHEMA] [--workers WORKERS] [-y] [-s]
                              [--version]
                              INPUT OUTPUT
 
@@ -155,8 +173,11 @@ Usage
                             display on the index page.
       --no-promoting        Do not include a link to instantgallery.py's website
                             in the footer of the gallery's overview.
+      --zipnames SCHEMA     Gallery name for the filenames in the zip file
 
     Runtime options:
+      --workers WORKERS, -W WORKERS
+                            Number of parallel image processing workers to spawn.
       -y                    Say yes to everything.
       -s                    Skips the generation of thumbnails and similar things.
                             THIS EXISTS FOR DEBUGGING. Use this only if you're
