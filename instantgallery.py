@@ -12,6 +12,7 @@ import datetime, time
 import zipfile
 import hashlib
 import json
+from multiprocessing import Pool
 
 # external imports 
 from PIL import Image
@@ -126,6 +127,63 @@ def excluded(fname):
     """True if this path should be excluded."""
     if '/.AppleDouble/' in fname:
 	return True
+
+class ImageProcessor:
+    """Callable class performing stage two image processing."""
+
+    def __init__(self, options, inputd, thumbdir, picdir):
+	self.options = options
+	self.inputd = inputd
+	self.thumbdir = thumbdir
+	self.picdir = picdir
+
+    def __call__(self, *args):
+        try:
+		self.process_image(*args)
+	except KeyboardInterrupt:
+		return None
+
+    def process_image(self, f):
+	options = self.options
+	inputd = self.inputd
+	thumbdir = self.thumbdir
+	picdir = self.picdir
+
+	fname = inputd+f[0]
+
+	# Use the Python imaging library for the big images, because we
+	# need to open them anyways and it is faster if we use the PIL
+	# also for scaling			
+	im = Image.open(fname)		
+	
+	# Use imagemagick's convert for creating the thumbnails because
+	# it would be a pain in the ass to implement thumbnails in PIL
+	# which are cropped to a square.
+	cmdline = ["convert", fname, "-thumbnail", "100x100^", "-gravity", "center", "-extent", "100x100", "-quality", "80"]
+	
+	# Do we need to rotate the image? We do it only if the rotation
+	# is noted in EXIF and the width is higher than the height (this
+	# prevents from rotating a picture wich is already rotated by
+	# another software without having the EXIF data changed).	
+	if options.autorotate and f[2] == 'Rotated 90 CW' and im.size[0] > im.size[1]:
+		im = im.rotate(-90)
+		cmdline.append("-rotate")
+		cmdline.append("90")
+	elif options.autorotate and f[2] == 'Rotated 90 CCW' and im.size[0] > im.size[1]:
+		im = im.rotate(90)
+		cmdline.append("-rotate")
+		cmdline.append("-90")
+	
+	# Save the new pictures in the corresponding directories with
+	# their hashes as filename.
+	cmdline.append("%s%s.jpg" % (thumbdir, f[3]))
+	subprocess.Popen(cmdline).wait()
+		
+	webr = options.webres
+	im.thumbnail((int(webr[0]), int(webr[1])), Image.ANTIALIAS)
+	im.save("%s%s.jpg" % (picdir, f[3]))
+	# del im # Free some RAM
+
 
 def makegallery(options, sub = 0, inputd = False, outputd = False):
 	# main procedure, used recursively for subdirectories
@@ -314,49 +372,23 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		d = sorted(dwithtimes, key=lambda f: f[0]) # Sort by filename
 		
 	i = 0
+	images = []
 	for f in d: # Second round. Again all files but only handling images.
 		i += 1
 		fname = inputd+f[0]
-		
-		sys.stdout.write("[1] Processing file %04d of %04d (%02d%%)       \r" % (i, len(d), i*100/len(d)))
-		sys.stdout.flush()
 		if fname.lower().endswith(FORMATS) and not excluded(fname):
 			fnames.append(fname)
 			if options.s:
 				continue
-			
-			# Use the Python imaging library for the big images, because we
-			# need to open them anyways and it is faster if we use the PIL
-			# also for scaling			
-			im = Image.open(fname)		
-			
-			# Use imagemagick's convert for creating the thumbnails because
-			# it would be a pain in the ass to implement thumbnails in PIL
-			# which are cropped to a square.
-			cmdline = ["convert", fname, "-thumbnail", "100x100^", "-gravity", "center", "-extent", "100x100", "-quality", "80"]
-			
-			# Do we need to rotate the image? We do it only if the rotation
-			# is noted in EXIF and the width is higher than the height (this
-			# prevents from rotating a picture wich is already rotated by
-			# another software without having the EXIF data changed).	
-			if options.autorotate and f[2] == 'Rotated 90 CW' and im.size[0] > im.size[1]:
-				im = im.rotate(-90)
-				cmdline.append("-rotate")
-				cmdline.append("90")
-			elif options.autorotate and f[2] == 'Rotated 90 CCW' and im.size[0] > im.size[1]:
-				im = im.rotate(90)
-				cmdline.append("-rotate")
-				cmdline.append("-90")
-			
-			# Save the new pictures in the corresponding directories with
-			# their hashes as filename.
-			cmdline.append("%s%s.jpg" % (thumbdir, f[3]))
-			subprocess.Popen(cmdline).wait()
-				
-			webr = options.webres
-			im.thumbnail((int(webr[0]), int(webr[1])), Image.ANTIALIAS)
-			im.save("%s%s.jpg" % (picdir, f[3]))
-			del im # Free some RAM
+			images += [f]
+
+	# and do the processing.
+	pool = Pool(processes=args.workers)
+	for im in images:
+		# TODO: skip if exists and do-not-overwite.
+		pool.apply_async( ImageProcessor(options, inputd, thumbdir, picdir), (im,))
+	pool.close()
+	pool.join()
 			
 	# html generation
 	for j in xrange(1, i+1): # Third round, this time images only!
@@ -662,6 +694,8 @@ group3.add_argument('--no-promoting', dest='promote', action='store_false',
                    help='Do not include a link to instantgallery.py\'s website in the footer of the gallery\'s overview.')
 group3.add_argument('--zipnames', dest='zipnames', type=str, default=False, metavar='SCHEMA', help='Gallery name for the filenames in the zip file')
 group4 = parser.add_argument_group('Runtime options')
+group4.add_argument('--workers', '-W', metavar="WORKERS", type=int, default='4',
+			help='Number of parallel image processing workers to spawn.')
 group4.add_argument('-y', action="store_true", dest='yes',
                    help='Say yes to everything.')
 group4.add_argument('-s', action="store_true", dest='s',
