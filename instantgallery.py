@@ -546,17 +546,17 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				<body><h1>%s""") % (title, VERSION, wayback, wayback, htmltitle)
 				
 
-	""" # we don't need to display the link "one directory up" since we linked the headline
-	if sub == 1:
-		html += "   <small><a href='../index.html'>"+lang['up']+"</a>"
-		if options.zip:
-			html += " &middot; "
-	elif sub > 1:
-		html += "   <small><a href='../index.html'>"+lang['up']+"</a> &middot; <a href='"+wayback+"index.html'>"+lang['top']+'</a>'
-		if options.zip:
-			html += " &middot; "
-	elif options.zip:
-		html += "   <small>" """
+        #""" # we don't need to display the link "one directory up" since we linked the headline
+        #if sub == 1:
+        #	html += "   <small><a href='../index.html'>"+lang['up']+"</a>"
+        #	if options.zip:
+        #		html += " &middot; "
+        #elif sub > 1:
+        #	html += "   <small><a href='../index.html'>"+lang['up']+"</a> &middot; <a href='"+wayback+"index.html'>"+lang['top']+'</a>'
+        #	if options.zip:
+        #		html += " &middot; "
+        #elif options.zip:
+        #	html += "   <small>" """
 		
 	# display zip download links
 	if options.zip and i > 0:
