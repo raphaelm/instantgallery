@@ -124,66 +124,66 @@ except:
 	HTMLMIN = False
 
 def excluded(fname):
-    """True if this path should be excluded."""
-    if '/.AppleDouble/' in fname:
-	return True
+	"""True if this path should be excluded."""
+	if '/.AppleDouble/' in fname:
+		return True
+
 
 class ImageProcessor:
-    """Callable class performing stage two image processing."""
-
-    def __init__(self, options, inputd, thumbdir, picdir):
-	self.options = options
-	self.inputd = inputd
-	self.thumbdir = thumbdir
-	self.picdir = picdir
-
-    def __call__(self, *args):
-        try:
-		self.process_image(*args)
-	except KeyboardInterrupt:
-		return None
-
-    def process_image(self, f):
-	options = self.options
-	inputd = self.inputd
-	thumbdir = self.thumbdir
-	picdir = self.picdir
-
-	fname = inputd+f[0]
-
-	# Use the Python imaging library for the big images, because we
-	# need to open them anyways and it is faster if we use the PIL
-	# also for scaling			
-	im = Image.open(fname)		
+	"""Callable class performing stage two image processing."""
 	
-	# Use imagemagick's convert for creating the thumbnails because
-	# it would be a pain in the ass to implement thumbnails in PIL
-	# which are cropped to a square.
-	cmdline = ["convert", fname, "-thumbnail", "100x100^", "-gravity", "center", "-extent", "100x100", "-quality", "80"]
+	def __init__(self, options, inputd, thumbdir, picdir):
+		self.options = options
+		self.inputd = inputd
+		self.thumbdir = thumbdir
+		self.picdir = picdir
 	
-	# Do we need to rotate the image? We do it only if the rotation
-	# is noted in EXIF and the width is higher than the height (this
-	# prevents from rotating a picture wich is already rotated by
-	# another software without having the EXIF data changed).	
-	if options.autorotate and f[2] == 'Rotated 90 CW' and im.size[0] > im.size[1]:
-		im = im.rotate(-90)
-		cmdline.append("-rotate")
-		cmdline.append("90")
-	elif options.autorotate and f[2] == 'Rotated 90 CCW' and im.size[0] > im.size[1]:
-		im = im.rotate(90)
-		cmdline.append("-rotate")
-		cmdline.append("-90")
+	def __call__(self, *args):
+		try:
+			self.process_image(*args)
+		except KeyboardInterrupt:
+			return None
 	
-	# Save the new pictures in the corresponding directories with
-	# their hashes as filename.
-	cmdline.append("%s%s.jpg" % (thumbdir, f[3]))
-	subprocess.Popen(cmdline).wait()
+	def process_image(self, f):
+		options = self.options
+		inputd = self.inputd
+		thumbdir = self.thumbdir
+		picdir = self.picdir
 		
-	webr = options.webres
-	im.thumbnail((int(webr[0]), int(webr[1])), Image.ANTIALIAS)
-	im.save("%s%s.jpg" % (picdir, f[3]))
-	# del im # Free some RAM
-
+		fname = inputd+f[0]
+		
+		# Use the Python imaging library for the big images, because we
+		# need to open them anyways and it is faster if we use the PIL
+		# also for scaling			
+		im = Image.open(fname)		
+		
+		# Use imagemagick's convert for creating the thumbnails because
+		# it would be a pain in the ass to implement thumbnails in PIL
+		# which are cropped to a square.
+		cmdline = ["convert", fname, "-thumbnail", "100x100^", "-gravity", "center", "-extent", "100x100", "-quality", "80"]
+		
+		# Do we need to rotate the image? We do it only if the rotation
+		# is noted in EXIF and the width is higher than the height (this
+		# prevents from rotating a picture wich is already rotated by
+		# another software without having the EXIF data changed).	
+		if options.autorotate and f[2] == 'Rotated 90 CW' and im.size[0] > im.size[1]:
+			im = im.rotate(-90)
+			cmdline.append("-rotate")
+			cmdline.append("90")
+		elif options.autorotate and f[2] == 'Rotated 90 CCW' and im.size[0] > im.size[1]:
+			im = im.rotate(90)
+			cmdline.append("-rotate")
+			cmdline.append("-90")
+		
+		# Save the new pictures in the corresponding directories with
+		# their hashes as filename.
+		cmdline.append("%s%s.jpg" % (thumbdir, f[3]))
+		subprocess.Popen(cmdline).wait()
+			
+		webr = options.webres
+		im.thumbnail((int(webr[0]), int(webr[1])), Image.ANTIALIAS)
+		im.save("%s%s.jpg" % (picdir, f[3]))
+		# del im # Free some RAM
 
 def makegallery(options, sub = 0, inputd = False, outputd = False):
 	# main procedure, used recursively for subdirectories
@@ -265,7 +265,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 	title = options.title
 	htmltitle = title
 	
-	if sub > 0: # Set the hierarchical title for subdirectories
+ 	if sub > 0: # Set the hierarchical title for subdirectories
 		n = outputd.replace(options.output, "")
 		if n.endswith("/"): n = n[:-1]
 		title += " "+n.replace("/", " / ")
@@ -305,12 +305,12 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		
 	# Create the directories we need if they do not exist
 	if not os.path.exists(thumbdir):
-	       os.mkdir(thumbdir)
+		os.mkdir(thumbdir)
 	if not os.path.exists(picdir):
-	       os.mkdir(picdir)
+		os.mkdir(picdir)
 	if not os.path.exists(pagedir):
-	       os.mkdir(pagedir)
-			
+		os.mkdir(pagedir)
+	
 	# Picture scanning and resizing
 	new = 0
 	fnames = []
@@ -318,21 +318,21 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 	dwithtimes = []
 	dirs = []
 	i = 0
-	
+
 	for f in d: # First round: All files in the input directory
 		i += 1
 		fname = inputd+f
-		sys.stdout.write("[0] Reading file %04d of %04d (%02d%%)       \r" % (i, len(d), i*100/len(d)))
+		sys.stdout.write("[0] Reading file %04d of %04d (%02d%%)	\r" % (i, len(d), i*100/len(d)))
 		sys.stdout.flush()
-		
+
 		if os.path.isdir(fname) and sub < options.sub:
 			# handle a subdirectory
 			print "Entering directory %s" % fname
 			subdir = makegallery(options, sub+1, fname, outputd+f)
 			if (subdir[1]+subdir[2]) > 0:
 				dirs.append((f, subdir[0], subdir[1], subdir[3]))
-						
-	       elif fname.lower().endswith(FORMATS) and not excluded(fname):
+		
+		elif fname.lower().endswith(FORMATS) and not excluded(fname):
 			# handle a picture
 			try:
 				if fname.lower().endswith(("jpeg", "jpg")): # supporting EXIF?
@@ -350,7 +350,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				# fallback: set date to files mtime and the orientation to unknown
 				ts = time.localtime(os.path.getmtime(fname))
 				o = False
-			# 
+			
 			if ts > new: new = ts
 			
 			# Use a hash of the image for the final filename
@@ -363,9 +363,9 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				m.update(e.read())
 			ha = m.hexdigest()
 			e.close()
-			
 			dwithtimes.append((f, ts, o, ha))
-			
+
+
 	if options.sort:
 		d = sorted(dwithtimes, key=lambda f: f[1]) # Sort by date
 	else:
@@ -392,7 +392,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			
 	# html generation
 	for j in xrange(1, i+1): # Third round, this time images only!
-		sys.stdout.write("[2] Processing picture %04d of %04d (%02d%%)         \r" % (j, i, j*100/i))
+		sys.stdout.write("[2] Processing picture %04d of %04d (%02d%%)	 \r" % (j, i, j*100/i))
 		sys.stdout.flush()
 			
 		# We also build a JSON file to make AJAX possible
@@ -551,7 +551,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		
 	# Generate a zip file
 	if options.zip:
-		sys.stdout.write("[4] Generating ZIP file                       \r")
+		sys.stdout.write("[4] Generating ZIP file			\r")
 		z = zipfile.ZipFile("%sphotos.zip" % (picdir,), "w")
 		for j in xrange(1, i+1):
 			if options.zipnames:
@@ -562,7 +562,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		z.close()
 		
 	# Generate the index page
-	sys.stdout.write("[3] Generating index                       \r")
+	sys.stdout.write("[3] Generating index			\r")
 	sys.stdout.flush()
 		
 	# HTML head
@@ -578,17 +578,17 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 
 				<body><h1>%s""" % (title.decode('utf-8'), VERSION, wayback, wayback, htmltitle)
 
-        #""" # we don't need to display the link "one directory up" since we linked the headline
-        #if sub == 1:
-        #	html += "   <small><a href='../index.html'>"+lang['up']+"</a>"
-        #	if options.zip:
-        #		html += " &middot; "
-        #elif sub > 1:
-        #	html += "   <small><a href='../index.html'>"+lang['up']+"</a> &middot; <a href='"+wayback+"index.html'>"+lang['top']+'</a>'
-        #	if options.zip:
-        #		html += " &middot; "
-        #elif options.zip:
-        #	html += "   <small>" """
+	#""" # we don't need to display the link "one directory up" since we linked the headline
+	#if sub == 1:
+	#	html += "   <small><a href='../index.html'>"+lang['up']+"</a>"
+	#	if options.zip:
+	#		html += " &middot; "
+	#elif sub > 1:
+	#	html += "   <small><a href='../index.html'>"+lang['up']+"</a> &middot; <a href='"+wayback+"index.html'>"+lang['top']+'</a>'
+	#	if options.zip:
+	#		html += " &middot; "
+	#elif options.zip:
+	#	html += "   <small>" """
 		
 	# display zip download links
 	if options.zip and i > 0:
@@ -615,9 +615,9 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			directory = [ ( _d.decode('utf-8') if type(_d) in (str, unicode) else _d ) for _d in directory ]
 			html += '<a href="%s/index.html" class="thumb dir' % directory[0]
 			if directory[3]:
-			    thumbpath = "%s/thumbs/%s.jpg"%(directory[0],directory[3])
+				thumbpath = "%s/thumbs/%s.jpg"%(directory[0],directory[3])
 			else:
-			    thumbpath="static/blank.png"
+				thumbpath="static/blank.png"
 			html += '" rel="%s"><img rel="%s" src="%s" alt="" />' % (directory[3],directory[0],thumbpath)
 			html += '<span>%s<br/>%s</span>'%( directory[0], (lang["number"]%directory[2]) )
 			html += '</a>'
@@ -635,7 +635,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 	if HTMLMIN:
 		html = html_minify(html.encode('utf-8'))
 	f = open(u"%sindex.html" % (htmldir.decode('utf-8')), "w")
-        f.write(html.encode('utf-8'))
+	f.write(html.encode('utf-8'))
 	f.close() # have fun
 	
 	if len(d) > 0:
@@ -693,10 +693,11 @@ group3.add_argument('--intro', '-i', dest='intro', action='store_true',
                    help='Use text file INTRO in the picture directories to display on the index page.')
 group3.add_argument('--no-promoting', dest='promote', action='store_false',
                    help='Do not include a link to instantgallery.py\'s website in the footer of the gallery\'s overview.')
-group3.add_argument('--zipnames', dest='zipnames', type=str, default=False, metavar='SCHEMA', help='Gallery name for the filenames in the zip file')
+group3.add_argument('--zipnames', dest='zipnames', type=str, default=False, metavar='SCHEMA',
+                   help='Gallery name for the filenames in the zip file')
 group4 = parser.add_argument_group('Runtime options')
 group4.add_argument('--workers', '-W', metavar="WORKERS", type=int, default='4',
-			help='Number of parallel image processing workers to spawn.')
+                   help='Number of parallel image processing workers to spawn.')
 group4.add_argument('-y', action="store_true", dest='yes',
                    help='Say yes to everything.')
 group4.add_argument('-s', action="store_true", dest='s',
