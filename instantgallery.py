@@ -581,10 +581,14 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			
 		for directory in dirs: # output ALL the directories
 			html += '<a href="%s/index.html" class="thumb dir' % directory[0]
-			html += '" rel="%d"><img rel="%s" src="%s/thumbs/%s.jpg" alt="" />' % (directory[2],directory[0],directory[0],directory[3])
-			html += '<span>'+directory[0]+'<br />'+(lang["number"] % directory[2])+'</span>'
-			html += '</a> '
-			
+			if directory[3]:
+			    thumbpath = "%s/thumbs/%s.jpg"%(directory[0],directory[3])
+			else:
+			    thumbpath="static/blank.png"
+			html += '" rel="%s"><img rel="%s" src="%s" alt="" />' % (directory[3],directory[0],thumbpath)
+			html += '<span>%s<br/>%s</span>'%( directory[0], (lang["number"]%directory[2]) )
+			html += '</a>'
+	
 	for j in xrange(1, i+1): # output ALL the files
 		html += '<a href="picpages/%s.html" class="thumb"><img src="thumbs/%s.jpg" alt="" />' % (d[j-1][3],d[j-1][3])
 		if options.displaydate:
