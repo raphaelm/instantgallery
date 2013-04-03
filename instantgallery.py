@@ -520,7 +520,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 					ex = 0.01 # degrees we want to show around in each direction
 					exifhtml += u'</tr><tr><td colspan="2" style="text-align: center">'
 					exifhtml += u'<iframe frameborder="0" height="350" marginheight="0" marginwidth="0" scrolling="no" src="http://www.openstreetmap.org/export/embed.html?bbox=%s,%s,%s,%s&amp;layer=mapnik&amp;marker=%s,%s" style="border: 1px solid black" width="440" id="map"></iframe><br />' % (lon-ex, lat-ex, lon+ex, lat+ex, lat, lon)
-					exifhtml += u'<small><a href="http://www.openstreetmap.org/?lat=%s&amp;lon=%s&amp;zoom=15" target="_blank">%s</a></small></td>' % (lang['maplnk'], lat, lon)
+					exifhtml += u'<small><a href="http://www.openstreetmap.org/?lat=%s&amp;lon=%s&amp;zoom=15" target="_blank">%s</a></small></td>' % (lat, lon, lang['maplnk'])
 				
 				exifhtml += u"</tr></table></div>"
 				exifhtmlsnipp = u"<div id='exifarea'>%s</div>" % exifhtml
