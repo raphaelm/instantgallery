@@ -13,6 +13,7 @@ import zipfile
 import hashlib
 import json
 
+# external imports 
 from PIL import Image
 
 import EXIF
@@ -21,14 +22,14 @@ if not os.path.exists(LIBDIR):
 	print "Please adjust the setting LIBDIR in line 3 of instantgallery.py"
 	print "It is currently set to: %s" % LIBDIR
 
-VERSION = '2.0.4'
+VERSION = '2.0.4/4gra-1'
 
 # Language strings
 LNGLIST = ['en', 'de']
 langstrings = {
 	'de': {
 		'back': 'zurück zur Übersicht',
-		'powered': "generiert am %s mit <a href='https://github.com/raphaelm/instantgallery'>instantgallery</a> von Raphael Michel (Version %s)",
+		'powered': "generiert am %s mit <a href='https://github.com/raphaelm/instantgallery'>instantgallery</a> (<a href='https://github.com/4gra/instantgallery'>fork</a>) von Raphael Michel (Version %s)",
 		'details': 'Bilddetails',
 		'camera': '<td>Kamera:</td><td>%s %s</td>',
 		'res': '<td>Original-Auflösung:</td><td>%dM</td>',
@@ -67,7 +68,7 @@ langstrings = {
 	'en': {
 		'stats': '%d pictures &middot; generated %s',
 		'back': 'back to main page',
-		'powered': "generated %s using <a href='https://github.com/raphaelm/instantgallery'>instantgallery</a> by Raphael Michel (version %s)",
+		'powered': "generated %s using <a href='https://github.com/raphaelm/instantgallery'>instantgallery</a> (<a href='https://github.com/4gra/instantgallery'>fork</a>) von Raphael Michel (Version %s)",
 		'details': 'Picture details',
 		'camera': '<td>Camera:</td><td>%s %s</td>',
 		'res': '<td>Original resolution:</td><td>%dM</td>',
