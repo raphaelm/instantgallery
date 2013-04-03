@@ -63,7 +63,9 @@ langstrings = {
 		'up': 'eine Ebene zurück',
 		'top': 'oberste Ebene',
 		'number': '%d Bilder',
-		'download': 'Diesen Ordner herunterladen'
+		'download': 'Diesen Ordner herunterladen',
+		'maplnk': 'Gr&ouml;&szlig;ere Karte anzeigen',
+		'OK': 'j',
 	},
 	'en': {
 		'stats': '%d pictures &middot; generated %s',
@@ -103,7 +105,9 @@ langstrings = {
 		'up': 'go up',
 		'top': 'go to the top',
 		'number': '%d pictures',
-		'download': 'Download this folder'
+		'download': 'Download this folder',
+		'maplnk': 'See larger map',
+		'OK': 'y',
 	}
 }
 
@@ -222,13 +226,13 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		print thumbdir
 		print picdir
 		print pagedir
-		print "Do you want to continue? [y/N]",
+		print "Do you want to continue? [%s/N]"%lang["OK"],
 		if options.yes:
-			print "y"
+			print lang["OK"]
 		else:
 			c = raw_input()
 			
-		if (options.yes or c.startswith(("y", "j", "Y", "J"))):
+		if (options.yes or c.lower().startswith(lang["OK"])):
 			shutil.rmtree(thumbdir)
 			shutil.rmtree(picdir)
 			shutil.rmtree(pagedir)
@@ -484,7 +488,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 					ex = 0.01 # degrees we want to show around in each direction
 					exifhtml += '</tr><tr><td colspan="2" style="text-align: center">'
 					exifhtml += '<iframe frameborder="0" height="350" marginheight="0" marginwidth="0" scrolling="no" src="http://www.openstreetmap.org/export/embed.html?bbox=%s,%s,%s,%s&amp;layer=mapnik&amp;marker=%s,%s" style="border: 1px solid black" width="440" id="map"></iframe><br />' % (lon-ex, lat-ex, lon+ex, lat+ex, lat, lon)
-					exifhtml += '<small><a href="http://www.openstreetmap.org/?lat=%s&amp;lon=%s&amp;zoom=15" target="_blank">Gr&ouml;&szlig;ere Karte anzeigen</a></small></td>' % (lat, lon)
+					exifhtml += '<small><a href="http://www.openstreetmap.org/?lat=%s&amp;lon=%s&amp;zoom=15" target="_blank">%s</a></small></td>' % (lang['maplnk'], lat, lon)
 				
 				exifhtml += "</tr></table></div>"
 				exifhtmlsnipp = "<div id='exifarea'>%s</div>" % exifhtml
