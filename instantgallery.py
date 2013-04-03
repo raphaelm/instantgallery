@@ -112,7 +112,7 @@ langstrings = {
 }
 
 # Supported formats
-FORMATS = ("png", "PNG", "jpg", "JPG", "bmp", "BMP", "jpeg", "JPEG", "tif", "TIF", "tiff", "TIFF")
+FORMATS = ("png", "jpg", "bmp", "jpeg", "tif", "tiff")
 
 # Optional modules
 HTMLMIN = False
@@ -121,6 +121,11 @@ try:
 	HTMLMIN = True
 except:
 	HTMLMIN = False
+
+def excluded(fname):
+    """True if this path should be excluded."""
+    if '/.AppleDouble/' in fname:
+	return True
 
 def makegallery(options, sub = 0, inputd = False, outputd = False):
 	# main procedure, used recursively for subdirectories
@@ -278,10 +283,10 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			if (subdir[1]+subdir[2]) > 0:
 				dirs.append((f, subdir[0], subdir[1], subdir[3]))
 						
-		elif fname.endswith(FORMATS):
+	       elif fname.lower().endswith(FORMATS) and not excluded(fname):
 			# handle a picture
 			try:
-				if fname.endswith(("jpeg", "JPEG", "jpg", "JPG")): # supporting EXIF?
+				if fname.lower().endswith(("jpeg", "jpg")): # supporting EXIF?
 					# try to get EXIF orientation and EXIF date
 					e = open(fname)
 					tags = EXIF.process_file(e, details=False)
@@ -324,7 +329,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		
 		sys.stdout.write("[1] Processing file %04d of %04d (%02d%%)       \r" % (i, len(d), i*100/len(d)))
 		sys.stdout.flush()
-		if fname.endswith(FORMATS):
+		if fname.lower().endswith(FORMATS) and not excluded(fname):
 			fnames.append(fname)
 			if options.s:
 				continue
