@@ -463,10 +463,13 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				# Parse the EXIF tags
 				if 'EXIF DateTimeOriginal' in tags:
 					# Date. We want it in the prefered notation of our locale.
-					tv = str(tags['EXIF DateTimeOriginal'])
-					if tv != '0000:00:00 00:00:00':
-						dt = time.strptime(tv, "%Y:%m:%d %H:%M:%S")
-						taghtml.append(lang['taken'] % time.strftime(lang['datetime'], dt))
+					try:
+						tv = str(tags['EXIF DateTimeOriginal'])
+						if tv != '0000:00:00 00:00:00':
+							dt = time.strptime(tv, "%Y:%m:%d %H:%M:%S")
+							taghtml.append(lang['taken'] % time.strftime(lang['datetime'], dt))
+					except ValueError, e: # invalid date stored in photo:
+						sys.stderr.write("%s: skipped invalid date (%s)\n" % (fname, e))
 				if 'EXIF ExposureTime' in tags:
 					tv = tags['EXIF ExposureTime']
 					if tv.values[0].den == 2 or tv.values[0].den == 5 or tv.values[0].den == 10:
