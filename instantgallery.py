@@ -215,15 +215,15 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		htmltitleparts = []
 		ti = 0
 		for f in tparts:
-			f = f.strip()
+			fr = f.decode('utf-8').strip()
 			if ti == 0:
-				htmltitleparts.append("<a href='%sindex.html' class='back'>%s</a>" % (wayback, f))
+				htmltitleparts.append(u"<a href='%sindex.html' class='back'>%s</a>" % (wayback, fr))
 			elif ti == sub:
-				htmltitleparts.append(f)
+				htmltitleparts.append(fr)
 			else:
-				htmltitleparts.append("<a href='%sindex.html' class='back'>%s</a>" % ("../"*(sub-(len(tparts)-ti-1)), f))
+				htmltitleparts.append(u"<a href='%sindex.html' class='back'>%s</a>" % (u"../"*(sub-(len(tparts)-ti-1)), fr))
 			ti += 1
-		htmltitle = " / ".join(htmltitleparts)
+		htmltitle = u" / ".join(htmltitleparts)
 	
 	# Deleting old tuff in the selected directories
 	if (os.path.exists(thumbdir) or os.path.exists(picdir) or os.path.exists(pagedir)) and not options.s:
@@ -367,7 +367,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		helper = {}
 		
 		# HTML heder
-		html = """<!DOCTYPE html>
+		html = u"""<!DOCTYPE html>
 					<html>
 					<head>
 						<title>%s</title>
@@ -378,29 +378,30 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 					</head>
 
 					<body>
-						""" % (title, VERSION, wayback, wayback)
+						""" % (title.decode('utf-8'), VERSION, wayback, wayback)
+
 		if j > 1: # "previous" link
-			html += ('<a href="%s.html" class="thumb" id="prev"><img src="../thumbs/%s.jpg" alt="" /><span>'+lang['prev']+'</span></a> ') % (d[j-2][3], d[j-2][3])
+			html += (u'<a href="%s.html" class="thumb" id="prev"><img src="../thumbs/%s.jpg" alt="" /><span>'+lang['prev']+'</span></a> ') % (d[j-2][3], d[j-2][3])
 			helper['prev'] = d[j-2][3]
 		else: # ajax stuff
-			html += ('<a class="thumb" id="prev" style="display: none;"><img /><span>'+lang['prev']+'</span></a>')
+			html += u'<a class="thumb" id="prev" style="display: none;"><img /><span>'+lang['prev']+'</span></a>'
 			helper['prev'] = False
 			
-		html += '<div id="loading"></div>'
-		html += '<img src="../pictures/%s.jpg" alt="" id="main" />' % d[j-1][3] # the picture itself
-		html += '<img id="shift" /><img id="shift2" />' # ajax stuff
+		html += u'<div id="loading"></div>'
+		html += u'<img src="../pictures/%s.jpg" alt="" id="main" />' % d[j-1][3] # the picture itself
+		html += u'<img id="shift" /><img id="shift2" />' # ajax stuff
 		helper['current'] = d[j-1][3]
 		
 		if j < i: # "next" link
-			html += (' <a href="%s.html" class="thumb" id="next"><img src="../thumbs/%s.jpg" alt="" /><span>'+lang['next']+'</span></a>') % (d[j][3], d[j][3])
+			html += (u' <a href="%s.html" class="thumb" id="next"><img src="../thumbs/%s.jpg" alt="" /><span>'+lang['next']+'</span></a>') % (d[j][3], d[j][3])
 			helper['next'] = d[j][3]
 		else: # ajax stuff
-			html += ('<a class="thumb" id="next" style="display: none;"><img /><span>'+lang['next']+'</span></a>')
+			html += u'<a class="thumb" id="next" style="display: none;"><img /><span>'+lang['next']+'</span></a>'
 			helper['next'] = False
 			
-		html += "<br /><a href='../index.html' id='back'>"+lang["back"]+"</a>" # the link back to the index
+		html += u"<br /><a href='../index.html' id='back'>"+lang["back"]+"</a>" # the link back to the index
 		
-		exifhtmlsnipp = "<div id='exifarea'></div>"
+		exifhtmlsnipp = u"<div id='exifarea'></div>"
 		helper['exifhtml'] = False
 		
 		fname = fnames[j-1]
@@ -418,11 +419,11 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				# Check if we want to parse GPS and if we have GPS data
 				gps = (options.gps and ('GPS GPSLatitude' in tags))
 				if gps:
-					exifhtml = "<div class='exif'>"
+					exifhtml = u"<div class='exif'>"
 				else:
-					exifhtml = "<div class='exif exifsmall'>"
+					exifhtml = u"<div class='exif exifsmall'>"
 					
-				exifhtml += "<table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
+				exifhtml += u"<table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
 				
 				if options.filenames:
 					exifhtml += (lang['filename']+"</tr><tr>") % os.path.basename(fname)
@@ -466,7 +467,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 				if 'Image Make' in tags and 'Image Model' in tags:
 					taghtml.append(lang['camera'] % (tags['Image Make'], tags['Image Model']))
 									
-				exifhtml += "</tr><tr>".join(taghtml)
+				exifhtml += u"</tr><tr>".join(taghtml)
 					
 				if gps:
 					# Now parse the GPS stuff
@@ -482,20 +483,20 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 					
 					# Display openstreetmap map
 					ex = 0.01 # degrees we want to show around in each direction
-					exifhtml += '</tr><tr><td colspan="2" style="text-align: center">'
-					exifhtml += '<iframe frameborder="0" height="350" marginheight="0" marginwidth="0" scrolling="no" src="http://www.openstreetmap.org/export/embed.html?bbox=%s,%s,%s,%s&amp;layer=mapnik&amp;marker=%s,%s" style="border: 1px solid black" width="440" id="map"></iframe><br />' % (lon-ex, lat-ex, lon+ex, lat+ex, lat, lon)
-					exifhtml += '<small><a href="http://www.openstreetmap.org/?lat=%s&amp;lon=%s&amp;zoom=15" target="_blank">%s</a></small></td>' % (lang['maplnk'], lat, lon)
+					exifhtml += u'</tr><tr><td colspan="2" style="text-align: center">'
+					exifhtml += u'<iframe frameborder="0" height="350" marginheight="0" marginwidth="0" scrolling="no" src="http://www.openstreetmap.org/export/embed.html?bbox=%s,%s,%s,%s&amp;layer=mapnik&amp;marker=%s,%s" style="border: 1px solid black" width="440" id="map"></iframe><br />' % (lon-ex, lat-ex, lon+ex, lat+ex, lat, lon)
+					exifhtml += u'<small><a href="http://www.openstreetmap.org/?lat=%s&amp;lon=%s&amp;zoom=15" target="_blank">%s</a></small></td>' % (lang['maplnk'], lat, lon)
 				
-				exifhtml += "</tr></table></div>"
-				exifhtmlsnipp = "<div id='exifarea'>%s</div>" % exifhtml
+				exifhtml += u"</tr></table></div>"
+				exifhtmlsnipp = u"<div id='exifarea'>%s</div>" % exifhtml
 				helper['exifhtml'] = exifhtml
 				
 		elif options.filenames:
-			exifhtml = "<div class='exif exifsmall'>"
-			exifhtml += "<table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
+			exifhtml = u"<div class='exif exifsmall'>"
+			exifhtml += u"<table><tr><th colspan='2'>"+lang["details"]+"</th></tr><tr>"
 			exifhtml += lang['filename'] % os.path.basename(fname)
-			exifhtml += "</tr></table></div>"
-			exifhtmlsnipp = "<div id='exifarea'>%s</div>" % exifhtml
+			exifhtml += u"</tr></table></div>"
+			exifhtmlsnipp = u"<div id='exifarea'>%s</div>" % exifhtml
 			helper['exifhtml'] = exifhtml
 				
 		html += exifhtmlsnipp
@@ -505,15 +506,15 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		helperfile.write(helperjson)
 		helperfile.close()
 		
-		html += "<script type='text/javascript'>\nvar current = %s; var original = current;\n</script>" % helperjson
-		html += "</body></html>"
+		html += u"<script type='text/javascript'>\nvar current = %s; var original = current;\n</script>" % helperjson
+		html += u"</body></html>"
 		
 		if HTMLMIN:
-			html = html_minify(html)
+			html = html_minify(html.encode('utf-8'))
 		
 		# save the HTML file
-		f = open("%s%s.html" % (pagedir, d[j-1][3]), "w")
-		f.write(html)
+		f = open("%s%s.html" % (pagedir.decode('utf-8'), d[j-1][3]), "w")
+		f.write(html.encode('utf-8'))
 		f.close()
 		
 	# Generate a zip file
@@ -533,7 +534,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 	sys.stdout.flush()
 		
 	# HTML head
-	html = ("""<!DOCTYPE html>
+	html = u"""<!DOCTYPE html>
 				<html>
 				<head>
 					<title>%s</title>
@@ -543,8 +544,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 					<script type="text/javascript" src="%sstatic/index.comb.js"></script>
 				</head>
 
-				<body><h1>%s""") % (title, VERSION, wayback, wayback, htmltitle)
-				
+				<body><h1>%s""" % (title.decode('utf-8'), VERSION, wayback, wayback, htmltitle)
 
         #""" # we don't need to display the link "one directory up" since we linked the headline
         #if sub == 1:
@@ -560,8 +560,8 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		
 	# display zip download links
 	if options.zip and i > 0:
-		html += "   <small><a href='pictures/photos.zip'>"+lang['download']+'</a></small>'
-	html += "</h1>"
+		html += u"   <small><a href='pictures/photos.zip'>"+lang['download']+'</a></small>'
+	html += u"</h1>"
 	
 	# if -i is specified and there is a file INTRO in the photo directory
 	# we want to show it! :-)
@@ -571,7 +571,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			introf = open(introfile)
 			intro = introf.read()
 			introf.close()
-			html += "<p>%s</p>" % intro.replace("\n\n", "</p><p>").replace("\n", "<br />")
+			html += u"<p>%s</p>" % intro.replace("\n\n", "</p><p>").replace("\n", "<br />")
 		
 	if len(dirs) > 0:
 		if options.sort:
@@ -580,6 +580,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			dirs = sorted(dirs, key=lambda f: f[0]) # by directory name
 			
 		for directory in dirs: # output ALL the directories
+			directory = [ ( _d.decode('utf-8') if type(_d) in (str, unicode) else _d ) for _d in directory ]
 			html += '<a href="%s/index.html" class="thumb dir' % directory[0]
 			if directory[3]:
 			    thumbpath = "%s/thumbs/%s.jpg"%(directory[0],directory[3])
@@ -590,19 +591,18 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 			html += '</a>'
 	
 	for j in xrange(1, i+1): # output ALL the files
-		html += '<a href="picpages/%s.html" class="thumb"><img src="thumbs/%s.jpg" alt="" />' % (d[j-1][3],d[j-1][3])
+		html += u'<a href="picpages/%s.html" class="thumb"><img src="thumbs/%s.jpg" alt="" />' % (d[j-1][3],d[j-1][3])
 		if options.displaydate:
-			html += '<span>'+time.strftime(lang['2ldatetime'], d[j-1][1])+'</span>'
-		html += '</a> '
+			html += u'<span>'+time.strftime(lang['2ldatetime'], d[j-1][1])+u'</span>'
+		html += u'</a> '
 		
 	# promote this software
 	if options.promote:
-		html += ("<div class='poweredby'>"+lang['powered']+"</div>") % (datetime.date.today().strftime("%d.%m.%Y"), VERSION)
-	html += "</body></html>"
+	html += u"</body></html>"
 	if HTMLMIN:
-		html = html_minify(html)
-	f = open("%sindex.html" % (htmldir), "w")
-	f.write(html)
+		html = html_minify(html.encode('utf-8'))
+	f = open(u"%sindex.html" % (htmldir.decode('utf-8')), "w")
+        f.write(html.encode('utf-8'))
 	f.close() # have fun
 	
 	if len(d) > 0:
