@@ -630,6 +630,7 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		
 	# promote this software
 	if options.promote:
+		html += (u"<div class='poweredby'>"+lang['powered']+"</div>") % (datetime.date.today().strftime("%d.%m.%Y"), VERSION)
 	html += u"</body></html>"
 	if HTMLMIN:
 		html = html_minify(html.encode('utf-8'))
