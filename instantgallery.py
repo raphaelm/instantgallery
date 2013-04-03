@@ -247,20 +247,11 @@ def makegallery(options, sub = 0, inputd = False, outputd = False):
 		
 	# Create the directories we need if they do not exist
 	if not os.path.exists(thumbdir):
-		try:
-			os.mkdir(thumbdir)
-		except:
-			raise ValueError("We were unable to write in the output directory")
+	       os.mkdir(thumbdir)
 	if not os.path.exists(picdir):
-		try:
-			os.mkdir(picdir)
-		except:
-			raise ValueError("We were unable to write in the output directory")
+	       os.mkdir(picdir)
 	if not os.path.exists(pagedir):
-		try:
-			os.mkdir(pagedir)
-		except:
-			raise ValueError("We were unable to write in the output directory")
+	       os.mkdir(pagedir)
 			
 	# Picture scanning and resizing
 	new = 0
