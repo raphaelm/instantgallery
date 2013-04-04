@@ -23,28 +23,15 @@ of the pictures for download.
 
 instantgallery.py is able to generate galleries in other languages than
 English, but currently only German is supported. If you add another language
-I would be glad to get an email (<raphael@geeksfactory.de>) or just fork
-the project on github (<https://github.com/raphaelm/instantgallery>) and
+I would be glad to get an [email](<raphael@geeksfactory.de>) or just fork
+the project on [GitHub](<https://github.com/raphaelm/instantgallery>) and
 send me a pull request.
-
-4gra Fork
----------
-This version of instantgallery.py is a fork by github.com/4gra and contains
-the following enhancements:
- - unicode support on image filenames and HTML output
- - configurable parallel image / thumbnail processing
- - more liberal input file handling
-
 
 Bugs
 ----
 
-The original author writes:
-  "Please report all bugs to <raphael@geeksfactory.de>"
- 
-but bugs found in this version might be better filed against the fork at:
-  https://github.com/4gra/instantgallery
-
+Please create an issure at [GitHub](<https://github.com/raphaelm/instantgallery>).
+If you don't have and don't want to have a GitHub account, send me an [email](<raphael@geeksfactory.de>).
 
 Example
 -------
@@ -80,13 +67,18 @@ Example
     
 Result: http://www.raphaelmichel.de/bilder/demo/
 
+Authors
+-------
+* Raphael Michel
+* Graham ([github.com/4gra](https://github.com/4gra/instantgallery))
+
 License
 -------
 
 The software is free and open source software and published unter the terms
 of the MIT license.
 
-Copyright (c) 2011 Raphael Michel
+Copyright (c) 2011-2013 Raphael Michel and contributors
 
 > Permission is hereby granted, free of charge, to any person obtaining a copy of 
 > this software and associated documentation files (the "Software"), to deal in the 
