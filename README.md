@@ -30,7 +30,7 @@ send me a pull request.
 Bugs
 ----
 
-Please create an issure at [GitHub](<https://github.com/raphaelm/instantgallery>).
+Please create an issue at [GitHub](<https://github.com/raphaelm/instantgallery>).
 If you don't have and don't want to have a GitHub account, send me an [email](<raphael@geeksfactory.de>).
 
 Example
